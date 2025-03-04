@@ -8,12 +8,12 @@ const PostCard = () => {
     <div
       className=""
       style={{
-        backgroundColor: themeColors.cardBackgroundColor, // Post card background color
+        backgroundColor: themeColors.backgroundColor, // Post card background color
         color: themeColors.textColor, // Text color from theme
       }}
     >
-      <h2>Post Card</h2>
-      <p>Some post content here...</p>
+      <h2 className="text-xl font-bold">Post Card</h2>
+      {/* <p>Some post content here...</p> */}
     </div>
   );
 };

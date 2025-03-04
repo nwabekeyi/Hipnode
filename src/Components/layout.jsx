@@ -1,33 +1,30 @@
 import { useContext } from "react";
 import Sidebar from "../Components/sidebar";
-import Navbar from "../Components/navbar";
-import Dashboard from "./dashboard";
-import PostCard from "../Components/postcard"; 
+import Header from "./header";
 import { ThemeContext } from "../context/themeContext";
+import { Outlet } from "react-router-dom";
 
 const Layout = () => {
   const { themeColors } = useContext(ThemeContext);
 
-  if (!themeColors) {
-    return <p>Loading theme...</p>; 
-  }
-
   return (
     <div
-      className="flex h-screen w-full"
+      className="min-h-screen flex "
       style={{
-        backgroundColor: themeColors.background, 
-        color: themeColors.textColor, 
+        backgroundColor: themeColors.background,
+        color: themeColors.textColor,
       }}
     >
-      {/* Sidebar (fixed width) */}
+      
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex flex-col flex-grow p-5">
-        <Navbar />
-        <Dashboard />
-        <PostCard />
+      
+      <div className="w-full ml-16 md:ml-56">
+        
+        <Header />
+
+        {/* Outlet (for dynamic page content) */}
+        <Outlet />
       </div>
     </div>
   );
