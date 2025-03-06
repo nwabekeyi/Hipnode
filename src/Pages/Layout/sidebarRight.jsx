@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { ThemeContext } from "../context/themeContext";
+import { ThemeContext } from "../../context/themeContext";
 
 const SidebarRight = () => {
   const { themeColors } = useContext(ThemeContext);
