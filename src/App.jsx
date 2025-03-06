@@ -7,14 +7,8 @@ import Layout from "./Components/layout";
 
 
 function App () {
-  const { theme, toggleTheme, themeColors } = useContext(ThemeContext);
-  let buttonStyles = {
-    padding: "10px 5px",
-    border: "none",
-    cursor: "pointer",
-    background: theme === "light" ? themeColors.buttonColor :themeColors.buttonColor2,
-    color: themeColors.buttonColor1Text,
-  };
+  const {  themeColors } = useContext(ThemeContext);
+
   
 
   
@@ -25,6 +19,7 @@ function App () {
       color: themeColors.textColor,
       minHeight: "100vh", // Ensures full page height
     }}>
+   
 
       <p className= "text-red-500 text-bold"> hey</p>
 
@@ -37,13 +32,7 @@ function App () {
     </Routes>
     </Router>
 
-    <button
-        onClick={toggleTheme}
-        style={buttonStyles}
-        // className="fixed top-4 right-4 p-2 rounded-md"
-      >
-        Toggle Theme
-      </button>
+   
     </div>
     
     
