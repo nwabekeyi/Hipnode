@@ -30,7 +30,7 @@ function App () {
     <button
         onClick={toggleTheme}
         style={buttonStyles}
-        // className="fixed top-4 right-4 p-2 rounded-md"
+        
       >
         Toggle Theme
       </button>
@@ -42,68 +42,3 @@ function App () {
  
 
 
-// const App = () => {
-  // const { theme, toggleTheme, themeColors } = useContext(ThemeContext);
-
-  // let buttonStyles = {
-  //   padding: "10px 5px",
-  //   border: "none",
-  //   cursor: "pointer",
-  // };
-
-  // if (theme === "light") {
-  //   buttonStyles.background = themeColors.buttonColor1;
-  //   buttonStyles.color = themeColors.buttonColor1Text;
-  // } else {
-  //   buttonStyles.background = themeColors.buttonColor2;
-  //   buttonStyles.color = themeColors.buttonColor1Text;
-  // }
-
-//   return (
-//     <div
-//       className="h-screen w-screen overflow-hidden flex flex-col"
-//       style={{
-//         background: themeColors.background,
-//         color: themeColors.textColor,
-//       }}
-//     >
-//       <Router>
-        
-//         <div className="flex h-full">
-         
-//           <Sidebar className="w-[350px] h-full" />
-
-          
-//           <div className="flex-1 flex flex-col h-full">
-            
-//             <Navbar className="h-[60px]" />
-
-//             <div className="flex-1 overflow-auto p-4">
-//               <Routes>
-//                 <Route path="/" element={<Dashboard />} />
-//                 <Route path="/profile" element={<Profile />} />
-//                 <Route path="/notifications" element={<Notifications />} />
-//               </Routes>
-//             </div>
-//           </div>
-
-          
-//           <div className="w-[350px] h-full overflow-auto pr-16 ">
-//             <PostCard />
-//           </div>
-//         </div>
-//       </Router>
-
-      
-      // <button
-      //   onClick={toggleTheme}
-      //   style={buttonStyles}
-      //   className="fixed top-4 right-4 p-2 rounded-md"
-      // >
-      //   Toggle Theme
-      // </button>
-//     </div>
-//   );
-// };
-
-export default App;
