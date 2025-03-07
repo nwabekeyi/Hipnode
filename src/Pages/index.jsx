@@ -1,9 +1,7 @@
-
-import React from "react";
-import Layout from "../Pages/Layout/layout";  // Correct import path
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // For routing
+import Layout from "./Layout"; // Import the Layout component
 
-const Index = () => {
+const MyRoute = () => {
   return (
     <Router>
       {/* Define routes for different parts of the app */}
@@ -18,4 +16,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default MyRoute;

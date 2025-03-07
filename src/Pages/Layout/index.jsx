@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import Header from "./header";
 import SidebarLeft from "./sidebarLeft"; // Left Sidebar Component
 import SidebarRight from "./sidebarRight"; // Right Sidebar Component
@@ -9,10 +9,10 @@ const Layout = () => {
   const { themeColors } = useContext(ThemeContext);
 
   // Function to handle button click or form submit
-  const handleSubmit = () => {
-    console.log("Input Value:", inputValue);
-    setInputValue(""); // Optionally clear input after submit
-  };
+  // const handleSubmit = () => {
+  //   console.log("Input Value:", inputValue);
+  //   setInputValue(""); // Optionally clear input after submit
+  // };
 
   return (
     <div
@@ -26,7 +26,7 @@ const Layout = () => {
       <Header />
 
       {/* Main Content and Sidebar Area */}
-      <div className="flex mt-[60px] flex-1"> 
+      <div className="flex mt-[60px] flex-1">
         {/* Left Sidebar */}
         <SidebarLeft />
 
