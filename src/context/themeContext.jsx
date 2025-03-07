@@ -29,8 +29,10 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const darkTheme = {
+    header:"#252d33",
     background: "#1d252a",
     textColor: "#f7f7f7",
+    sideBarColor: "#252d33",
     secondaryColor: "#e2e5e7",
     navbarColor: "#f3f6f8",
     clickedNavbarColor: "#ff4400",
