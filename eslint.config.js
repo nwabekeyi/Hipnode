@@ -40,6 +40,8 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+       // ❌ Disable prop validation
+       'react/prop-types': 'off',
     },
   },
 ];
