@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { ThemeContext } from "../../context/themeContext";
-// import { Link } from "react-router-dom";
 
 const SidebarLeft = () => {
   const { themeColors } = useContext(ThemeContext);
@@ -25,14 +24,6 @@ const SidebarLeft = () => {
         <div className="bg-white h-[280px] w-[200px] rounded-2xl mt-5"></div>
            
         
-
-      {/* Navigation Links */}
-      {/* <nav className="flex flex-col space-y-4">
-        <Link to="/" className="p-2 rounded-md hover:bg-gray-200">🏠 Home</Link>
-        <Link to="/about" className="p-2 rounded-md hover:bg-gray-200">📖 About</Link>
-        <Link to="/services" className="p-2 rounded-md hover:bg-gray-200">⚙️ Services</Link>
-        <Link to="/contact" className="p-2 rounded-md hover:bg-gray-200">📞 Contact</Link>
-      </nav> */}
     </div>
   );
 };
