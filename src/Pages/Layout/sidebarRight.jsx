@@ -24,6 +24,7 @@ const SidebarRight = () => {
       <div className="bg-white h-[300px] w-[250px] rounded-2xl mt-5"></div>
       <div className="bg-white h-[300px] w-[250px] rounded-2xl mt-5"></div>
       
+      
     </div>
   );
 };
