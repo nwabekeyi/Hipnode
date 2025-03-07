@@ -7,6 +7,7 @@ export const ThemeProvider = ({ children }) => {
 
 
   const lightTheme = {
+    headerColor:"#ffffff",
     background: "#f7f7f7",
     textColor: "#3f4354",
     secondaryColor: "#dcdfe1",

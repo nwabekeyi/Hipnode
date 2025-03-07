@@ -1,9 +1,8 @@
 import { useContext } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ThemeContext } from "./context/themeContext"; 
-import Home from "./Pages/home";
-import Members from "./Pages/members";
-import Layout from "./Components/layout";
+import Layout from "./Pages/Layout/layout";
+import Index from "./Pages";
 
 
 function App () {
@@ -26,17 +25,8 @@ function App () {
       minHeight: "100vh", // Ensures full page height
     }}>
 
-      <p className= "text-red-500 text-bold"> hey</p>
-
-    <Router>
-    <Routes>
-      <Route path= "/" element= {<Layout/>}> 
-      <Route index element= {<Home/>}/> 
-      <Route path= "members" element= {<Members/>}/> 
-      </Route>
-    </Routes>
-    </Router>
-
+    <Index/> 
+  
     <button
         onClick={toggleTheme}
         style={buttonStyles}
