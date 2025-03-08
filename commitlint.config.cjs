@@ -6,7 +6,7 @@ module.exports = {
         'always',
         ['feat', 'fix', 'style', 'refactor'],
       ],
-      'subject-case': [2, 'always', 'sentence-case'],
+      'subject-case': [0],
     },
   };
   
