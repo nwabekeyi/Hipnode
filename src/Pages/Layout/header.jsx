@@ -1,5 +1,7 @@
 import { useContext } from "react";
 import { ThemeContext } from "../../context/themeContext";
+import Button from "../../Components/button";
+// import { Link } from 'react-router-dom';
 
 const Header = () => {
   const { themeColors } = useContext(ThemeContext);
@@ -36,24 +38,9 @@ const Header = () => {
 
         {/* Notification Button */}
         <div className="flex items-center space-x-5">
-          <button
-            className="relative text-2xl px-4 py-2 rounded-md"
-            style={{
-              backgroundColor: themeColors.buttonColor1,
-              color: themeColors.buttonColor1Text,
-            }}
-          >
+          <Button bgOrange text="hello">
             Hello!
-            <span
-              className="absolute top-0 right-0 -mt-1 -mr-1 flex justify-center items-center text-[10px] w-5 h-4 rounded-full border-2 border-white"
-              style={{
-                backgroundColor: themeColors.buttonColor1Color,
-                color: themeColors.buttonColor1TextColor,
-              }}
-            >
-              15
-            </span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>
