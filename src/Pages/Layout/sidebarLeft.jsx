@@ -6,7 +6,7 @@ const SidebarLeft = () => {
 
   return (
     <div
-      className="sidebar-left fixed left-0 top-[60px] w-16 md:w-56 h-screen pt-8 px-4 transition-all duration-300"
+      className="sidebar-left fixed left-0 top-[60px] w-16 md:w-56 h-screen pt-8 px-4 transition-all duration-300 overflow-y-scroll"
       style={{
         backgroundColor: themeColors.background,
         color: themeColors.textColor,

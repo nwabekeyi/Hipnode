@@ -6,8 +6,7 @@ const MainContent = () => {
   // const { themeColors } = useContext(ThemeContext);
 
   return (
-    <div 
-   className="main-content w-full ml-16 md:ml-56 mr-16 md:mr-72 p-4 flex-1">
+    <div className="main-content w-full ml-16 md:ml-56 mr-16 md:mr-72 p-4 flex-1 h-screen overflow-y-hidden">
       <Outlet />
 
       {/* Example Content */}
@@ -16,8 +15,6 @@ const MainContent = () => {
       <div className="bg-white flex justify-center h-[150px] rounded-xl mt-5"></div>
       <div className="bg-white flex justify-center h-[250px] rounded-xl mt-5"></div>
       <div className="bg-white flex justify-center h-[250px] rounded-xl mt-5"></div>
-
-      
     </div>
   );
 };
