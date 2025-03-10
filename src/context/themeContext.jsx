@@ -16,9 +16,9 @@ export const ThemeProvider = ({ children }) => {
     inputBgSecondary: "#ffffff", // Pure White
     labelText: "#666977", // Muted Blue-Gray
     placeholderColor: "#dcdfe1", // Light Gray
-    buttonPrimaryBg: "#ff6833", // Bright Orange
+    buttonOrangeBg: "#ff6833", // Bright Orange
     buttonPrimaryText: "#f8f2f1", // Soft White
-    buttonSecondaryBg: "#3479e2", // Deep Blue
+    buttonBlueBg: "#3479e2", // Deep Blue
     buttonSecondaryText: "#ffffff", // Pure White
     lightOrangeColor: "#ffece6",
     lightOrangeColorText: "#ff8f66",
