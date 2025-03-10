@@ -1,12 +1,8 @@
-// import React, { useContext } from "react";
-// import { ThemeContext } from "../../context/themeContext"; // Adjust the path if necessary
 import { Outlet } from "react-router-dom"; // For routing purposes
 
 const MainContent = () => {
-  // const { themeColors } = useContext(ThemeContext);
-
   return (
-    <div className="main-content w-full ml-16 md:ml-56 mr-16 md:mr-72 p-4 flex-1 h-screen overflow-y-hidden">
+    <div className="main-content w-full ml-16 md:ml-56 mr-16 md:mr-72 p-4 flex-1">
       <Outlet />
 
       {/* Example Content */}

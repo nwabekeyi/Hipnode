@@ -6,7 +6,7 @@ const SidebarLeft = () => {
 
   return (
     <div
-      className="sidebar-left fixed left-0 top-[60px] w-16 md:w-56 h-screen pt-8 px-4 transition-all duration-300 overflow-y-scroll"
+      className="sidebar-left fixed left-0 top-[60px] w-16 md:w-56 h-screen pt-8 px-4 transition-all duration-300"
       style={{
         backgroundColor: themeColors.background,
         color: themeColors.textColor,
@@ -22,14 +22,6 @@ const SidebarLeft = () => {
       <div className="bg-white h-[280px] w-[200px] rounded-2xl mt-5"></div>
       <div className="bg-white h-[280px] w-[200px] rounded-2xl mt-5"></div>
       <div className="bg-white h-[280px] w-[200px] rounded-2xl mt-5"></div>
-
-      {/* Navigation Links */}
-      {/* <nav className="flex flex-col space-y-4">
-        <Link to="/" className="p-2 rounded-md hover:bg-gray-200">🏠 Home</Link>
-        <Link to="/about" className="p-2 rounded-md hover:bg-gray-200">📖 About</Link>
-        <Link to="/services" className="p-2 rounded-md hover:bg-gray-200">⚙️ Services</Link>
-        <Link to="/contact" className="p-2 rounded-md hover:bg-gray-200">📞 Contact</Link>
-      </nav> */}
     </div>
   );
 };
