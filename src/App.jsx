@@ -1,17 +1,9 @@
 import { useContext } from "react";
 import { ThemeContext } from "./context/themeContext";
-import MyRoute from "./Pages";
+import MyRoutes from "./route";
 
 function App() {
-  const { theme, toggleTheme, themeColors } = useContext(ThemeContext);
-  let buttonStyles = {
-    padding: "10px 5px",
-    border: "none",
-    cursor: "pointer",
-    background:
-      theme === "light" ? themeColors.buttonColor : themeColors.buttonColor2,
-    color: themeColors.buttonColor1Text,
-  };
+  const { themeColors } = useContext(ThemeContext);
 
   return (
     <div
@@ -21,11 +13,7 @@ function App() {
         minHeight: "100vh", // Ensures full page height
       }}
     >
-      <MyRoute />
-
-      <button onClick={toggleTheme} style={buttonStyles}>
-        Toggle Theme
-      </button>
+      <MyRoutes /> {/* This renders your routes inside App */}
     </div>
   );
 }
