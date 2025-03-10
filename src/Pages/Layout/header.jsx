@@ -20,8 +20,10 @@ const Header = () => {
       color: themeColors.textColor,
     }}
     >
-      <div className="w-28 md:flex text-red-800 bg-white font-semibold">LOGO</div>
-
+      <div className="w-28 md:flex mb-8 text-red-800 bg-white font-semibold">
+        LOGO
+      </div>
+      
       <div>
         <h1 className="text-xl font-semibold">Welcome to Hipnode</h1>
         <p>Tracy</p>
@@ -53,7 +55,10 @@ const Header = () => {
             Hello!
             <span
               className="absolute top-0 right-0 -mt-1 -mr-1 flex justify-center items-center text-[10px] w-5 h-4 rounded-full border-2 border-white"
-              style={{ backgroundColor: themeColors.buttonColor1, color: themeColors.buttonColor1Text }}
+              style={{
+                backgroundColor: themeColors.buttonColor1Color,
+                color: themeColors.buttonColor1TextColor,
+              }}
             >
               15
             </span>
