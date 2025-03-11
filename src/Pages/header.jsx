@@ -1,18 +1,8 @@
 import { useContext } from "react";
-import { ThemeContext } from "../../context/themeContext";
-import Button from "../../Components/button";
-// import { Link } from 'react-router-dom';
+import { ThemeContext } from "../context/themeContext";
 
 const Header = () => {
   const { themeColors } = useContext(ThemeContext);
-
-  // let buttonStyles = {
-  //   padding: "10px 5px",
-  //   border: "none",
-  //   cursor: "pointer",
-  //   background: theme === "light" ? themeColors.buttonColor1 : themeColors.buttonColor2,
-  //   color: themeColors.buttonColor1Text,
-  // };
 
   return (
     <div
@@ -23,9 +13,6 @@ const Header = () => {
       }}
     >
       <div className="w-28 md:flex text-red-800 bg-white font-semibold">
-        LOGO
-      </div>
-      <div className="w-28 md:flex mb-8 text-red-800 bg-white font-semibold">
         LOGO
       </div>
 
@@ -42,7 +29,7 @@ const Header = () => {
             placeholder="Search..."
             className="px-4 py-2 rounded-md"
             style={{
-              backgroundColor: themeColors.input1,
+              backgroundColor: themeColors.inputBgPrimary,
               color: themeColors.textColor,
             }}
           />
@@ -50,18 +37,24 @@ const Header = () => {
 
         {/* Notification Button */}
         <div className="flex items-center space-x-5">
-          <Button bgOrange text="hello">
+          <button
+            className="relative text-2xl px-4 py-2 rounded-md"
+            style={{
+              backgroundColor: themeColors.buttonPrimaryBg,
+              color: themeColors.buttonPrimaryText,
+            }}
+          >
             Hello!
             <span
               className="absolute top-0 right-0 -mt-1 -mr-1 flex justify-center items-center text-[10px] w-5 h-4 rounded-full border-2 border-white"
               style={{
-                backgroundColor: themeColors.buttonColor1Color,
-                color: themeColors.buttonColor1TextColor,
+                backgroundColor: themeColors.buttonPrimaryBg,
+                color: themeColors.buttonPrimaryText,
               }}
             >
               15
             </span>
-          </Button>
+          </button>
 
           {/* Theme Toggle Button */}
           {/* <button onClick={toggleTheme} style={buttonStyles}>

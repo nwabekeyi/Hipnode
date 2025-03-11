@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { ThemeContext } from "./context/themeContext";
-import MyRoute from "./Pages";
+import MyRoutes from "./route";
 
 function App() {
   const { /* theme, */ /* toggleTheme, */ themeColors } =
@@ -22,7 +22,8 @@ function App() {
         minHeight: "100vh", // Ensures full page height
       }}
     >
-      <MyRoute />
+      <MyRoutes />
+      <MyRoutes /> {/* This renders your routes inside App */}
     </div>
   );
 }
