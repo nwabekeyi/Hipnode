@@ -16,9 +16,9 @@ export const ThemeProvider = ({ children }) => {
     inputBgSecondary: "#ffffff", // Pure White
     labelText: "#666977", // Muted Blue-Gray
     placeholderColor: "#dcdfe1", // Light Gray
-    buttonPrimaryBg: "#ff6833", // Bright Orange
+    buttonOrangeBg: "#ff6833", // Bright Orange
     buttonPrimaryText: "#f8f2f1", // Soft White
-    buttonSecondaryBg: "#3479e2", // Deep Blue
+    buttonBlueBg: "#3479e2", // Deep Blue
     buttonSecondaryText: "#ffffff", // Pure White
     lightOrangeColor: "#ffece6",
     lightOrangeColorText: "#ff8f66",
@@ -26,10 +26,8 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const darkTheme = {
-    header: "#252d33",
     background: "#1d252a",
     textColor: "#f7f7f7",
-    sideBarColor: "#252d33",
     secondaryColor: "#e2e5e7",
     navbarBg: "#f3f6f8", // Soft Light Gray
     navbarActiveBg: "#ff4400", // Bright Red
