@@ -482,4 +482,4 @@ const initialValue = [
   },
 ];
 
-export default PublishingInterface;
+export default RichTextExample;
