@@ -9,21 +9,21 @@ export const useUser = () => useContext(UserContext);
 // UserProvider component to wrap your app
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Initialize user state from localStorage (if available)
-    const storedUser = localStorage.getItem("user");
+    // Initialize user state from sessionStorage (if available)
+    const storedUser = sessionStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
   // Function to update user details
   const updateUser = (userData) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData)); // Save user details to localStorage
+    sessionStorage.setItem("user", JSON.stringify(userData)); // Save user details to sessionStorage
   };
 
   // Function to clear user details (e.g., on logout)
   const clearUser = () => {
     setUser(null);
-    localStorage.removeItem("user"); // Remove user details from localStorage
+    sessionStorage.removeItem("user"); // Remove user details from sessionStorage
   };
 
   return (
