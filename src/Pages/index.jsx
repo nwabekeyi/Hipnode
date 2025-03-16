@@ -1,18 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // For routing
-import Layout from "./Layout"; // Import the Layout component
+import { Routes, Route } from "react-router-dom";
+import Layout from "./Layout";
+import RegistrationForm from "./Auth/signUp";
+import LoginPage from "./Auth/Login";
 
 const MyRoute = () => {
   return (
-    <Router>
-      {/* Define routes for different parts of the app */}
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          {/* Add any nested routes for dynamic content */}
-          <Route path="home" element={<div>Home Page Content</div>} />
-          <Route path="about" element={<div>About Page Content</div>} />
-        </Route>
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route path="home" element={<div>Home Page Content</div>} />
+        <Route path="about" element={<div>About Page Content</div>} />
+      </Route>
+      <Route path="/register" element={<RegistrationForm />} />
+      <Route path="/login" element={<LoginPage />} />
+    </Routes>
   );
 };
 

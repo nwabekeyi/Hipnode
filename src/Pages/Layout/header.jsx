@@ -1,8 +1,14 @@
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../context/themeContext";
 
 const Header = () => {
   const { themeColors } = useContext(ThemeContext);
+
+  const navigate = useNavigate();
+  const handleRegisterClick = () => {
+    navigate("/register"); // Navigate to the registration page
+  };
 
   return (
     <div
@@ -42,6 +48,7 @@ const Header = () => {
               backgroundColor: themeColors.buttonColor1,
               color: themeColors.buttonColor1Text,
             }}
+            onClick={handleRegisterClick}
           >
             Hello!
             <span
