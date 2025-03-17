@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
 import RegistrationForm from "./Auth/signUp";
 import LoginPage from "./Auth/Login";
+import ForgotPassword from "./Auth/ForgotPassword";
 
 const MyRoute = () => {
   return (
@@ -12,6 +13,7 @@ const MyRoute = () => {
       </Route>
       <Route path="/register" element={<RegistrationForm />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
     </Routes>
   );
 };
