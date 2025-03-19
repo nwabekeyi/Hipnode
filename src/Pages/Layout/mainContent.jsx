@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import InputField from "../../Components/inputField";
-import Btc from "../../assets/btc.jpg";
-import Seo from "../../assets/seo.jpg";
-import One from "../../assets/one.jpg";
+import Btc from "../../assets/Btc.jpg";
+import Seo from "../../assets/Seo.jpg";
+import One from "../../assets/One.jpg";
 import Design from "../../assets/Design.jpg";
 import Button from "../../Components/button";
 
@@ -100,18 +100,7 @@ const MainContent = () => {
               }}
             />
           </div>
-          <Button
-            backgroundColor="bg-[#FF4500]/60"
-            onClick={handleCreatePost}
-            style={{
-              height: "40px",
-              padding: "0 24px",
-              borderRadius: "4px",
-              whiteSpace: "nowrap",
-              fontSize: "14px",
-              fontWeight: "500",
-            }}
-          >
+          <Button onClick={handleCreatePost} text="Post">
             Create Post
           </Button>
         </div>
