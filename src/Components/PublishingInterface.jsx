@@ -10,6 +10,8 @@ import { withHistory } from 'slate-history';
 import { Editable, Slate, useSlate, withReact } from 'slate-react';
 import { FaImage, FaLink } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
+import { useContext } from "react";
+import { PublishContext } from '../context/publishContext';
 
 // Error Boundary Component
 class ErrorBoundary extends Component {
@@ -128,6 +130,7 @@ const PublishingInterface = () => {
   const [coverImage, setCoverImage] = useState(null);
   const [category, setCategory] = useState('Select Group');
   const [postType, setPostType] = useState('Create - Post');
+  const {closePublisher} = useContext(PublishContext)
 
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
@@ -184,14 +187,11 @@ const PublishingInterface = () => {
   };
 
   return (
-    <div className="grid grid-cols-[200px,1fr,200px] h-screen bg-gray-100">
-      {/* Left Sidebar */}
-      <div className="bg-white shadow-md p-4">
-        <p className="text-gray-600 text-center">SIDEBAR</p>
-      </div>
+    <div className="flex  top-1 left-1 align-center absolute justify-center h-screen bg-gray-100 w-full" >
+  
 
       {/* Central Panel */}
-      <div className="flex justify-center p-4 overflow-y-auto">
+      <div className="flex justify-center p-4 overflow-y-auto w-[100%]">
         <ErrorBoundary>
           <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-4">
             {/* Title Input */}
@@ -328,7 +328,7 @@ const PublishingInterface = () => {
               >
                 Publish
               </button>
-              <button className="border border-gray-300 px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100">
+              <button onClick={closePublisher} className="border border-gray-300 px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100">
                 Cancel
               </button>
             </div>
@@ -336,10 +336,6 @@ const PublishingInterface = () => {
         </ErrorBoundary>
       </div>
 
-      {/* Right Sidebar */}
-      <div className="bg-white shadow-md p-4">
-        <p className="text-gray-600 text-center">SIDEBAR</p>
-      </div>
     </div>
   );
 };

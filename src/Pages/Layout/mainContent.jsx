@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import InputField from "../../Components/inputField";
-import Btc from "../../assets/btc.jpg";
-import Seo from "../../assets/seo.jpg";
-import One from "../../assets/one.jpg";
+import Btc from "../../assets/Btc.jpg";
+import Seo from "../../assets/Seo.jpg";
+import One from "../../assets/One.jpg";
 import Design from "../../assets/Design.jpg";
 import Button from "../../Components/button";
+import { useContext } from "react";
+import { PublishContext } from "../../context/publishContext";
 
 const MainContent = () => {
   const [inputValue, setInputValue] = useState("");
+  const {openPublisher} = useContext(PublishContext)
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -16,8 +19,10 @@ const MainContent = () => {
   };
 
   const handleCreatePost = () => {
+    openPublisher();
     console.log("Create Post button clicked!");
   };
+
 
   const mockData = [
     {
@@ -179,6 +184,7 @@ const MainContent = () => {
 
       {/* Remaining empty divs */}
       <div className="bg-white flex justify-center h-[250px] rounded-xl mt-5"></div>
+  
     </div>
   );
 };

@@ -1,11 +1,7 @@
 import { useContext } from "react";
 import { ThemeContext } from "../../context/themeContext";
-<<<<<<< HEAD
 import Button from "../../Components/button";
 // import { Link } from 'react-router-dom';
-=======
-import Inputfield from "../../Components/inputField";
->>>>>>> 5de7d51 (feat: Added inputField and mainContent)
 
 const Header = () => {
   const { themeColors } = useContext(ThemeContext);
@@ -65,12 +61,8 @@ const Header = () => {
             >
               15
             </span>
-<<<<<<< HEAD
           </Button>
 
-=======
-          </button>
->>>>>>> 5de7d51 (feat: Added inputField and mainContent)
           {/* Theme Toggle Button */}
           {/* <button onClick={toggleTheme} style={buttonStyles}>
             Toggle Theme
