@@ -90,6 +90,7 @@ const MainContent = () => {
         <div className="flex items-center gap-4">
           <div className="flex-grow">
             <InputField
+              onFocus ={handleCreatePost}
               type="text"
               placeholder="Let's share what's going on your mind..."
               value={inputValue}
@@ -105,18 +106,7 @@ const MainContent = () => {
               }}
             />
           </div>
-          <Button
-            backgroundColor="bg-[#FF4500]/60"
-            onClick={handleCreatePost}
-            style={{
-              height: "40px",
-              padding: "0 24px",
-              borderRadius: "4px",
-              whiteSpace: "nowrap",
-              fontSize: "14px",
-              fontWeight: "500",
-            }}
-          >
+          <Button onClick={handleCreatePost} text="Post">
             Create Post
           </Button>
         </div>

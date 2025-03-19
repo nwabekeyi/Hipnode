@@ -1,8 +1,13 @@
 import { useContext } from "react";
 import { ThemeContext } from "../context/themeContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { themeColors } = useContext(ThemeContext);
+  const navigate = useNavigate();
+  const handleRegisterClick = () => {
+    navigate("/register"); // Navigate to the registration page
+  };
 
   return (
     <div
@@ -40,9 +45,10 @@ const Header = () => {
           <button
             className="relative text-2xl px-4 py-2 rounded-md"
             style={{
-              backgroundColor: themeColors.buttonPrimaryBg,
+              backgroundColor: themeColors.buttonOrangeBg,
               color: themeColors.buttonPrimaryText,
             }}
+            onClick={handleRegisterClick}
           >
             Hello!
             <span

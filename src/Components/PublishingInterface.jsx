@@ -13,6 +13,7 @@ import ReactMarkdown from 'react-markdown';
 import { useContext } from "react";
 import { PublishContext } from '../context/publishContext';
 
+
 // Error Boundary Component
 class ErrorBoundary extends Component {
   state = { hasError: false, error: null };
@@ -130,7 +131,8 @@ const PublishingInterface = () => {
   const [coverImage, setCoverImage] = useState(null);
   const [category, setCategory] = useState('Select Group');
   const [postType, setPostType] = useState('Create - Post');
-  const {closePublisher} = useContext(PublishContext)
+  const {closePublisher} = useContext(PublishContext);
+  
 
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
@@ -187,11 +189,7 @@ const PublishingInterface = () => {
   };
 
   return (
-    <div className="flex  top-1 left-1 align-center absolute justify-center h-screen bg-gray-100 w-full" >
-  
-
-      {/* Central Panel */}
-      <div className="flex justify-center p-4 overflow-y-auto w-[100%]">
+      <div className="flex justify-center overflow-y-auto w-[fit-content]">
         <ErrorBoundary>
           <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-4">
             {/* Title Input */}
@@ -336,7 +334,6 @@ const PublishingInterface = () => {
         </ErrorBoundary>
       </div>
 
-    </div>
   );
 };
 

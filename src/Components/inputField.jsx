@@ -6,6 +6,7 @@ function InputField({
   backgroundColor = "",
   color = "",
   style = {},
+  onFocus
 }) {
   return (
     <div>
@@ -19,6 +20,7 @@ function InputField({
           color,
           ...style,
         }}
+        onFocus={onFocus}
       />
     </div>
   );
