@@ -36,10 +36,10 @@ const Modal = ({ isOpen, onClose, children, size = "md" }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[100] grid">
       <div
         ref={modalRef}
-        className={`bg-white rounded-lg shadow-lg ${modalSizeClass} mx-4 p-6 z-10 overflow-auto`}
+        className={`bg-white rounded-lg ${modalSizeClass} mx-4 p-3 z-10 overflow-auto h-[auto]`}
       >
         <button
           className="absolute top-0 right-0 mt-4 mr-4 text-gray-600 hover:text-gray-900"
