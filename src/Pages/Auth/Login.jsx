@@ -130,10 +130,8 @@ const LoginPage = () => {
           type="submit"
           className="w-full bg-blue-500 hover:bg-blue-600"
           disabled={loading}
-        >
-          {loading ? "Logging in..." : "Login"}
-        </Button>
-
+          text={loading ? "Logging in..." : "Login"}
+        />
         {/* Registration Link */}
         <p className="mt-4 text-center">
           Do not have an account?{" "}

@@ -1,4 +1,3 @@
-// src/components/RegistrationForm.js
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import useApi from "../../hooks/useApi";
@@ -87,7 +86,7 @@ const RegistrationForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="h-full flex items-center justify-center bg-gray-100 overflow-y-auto">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
@@ -206,11 +205,10 @@ const RegistrationForm = () => {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600"
+          className="w-full"
+          text={loading ? "Registering..." : "Register"}
           disabled={loading}
-        >
-          {loading ? "Registering..." : "Register"}
-        </Button>
+        />
 
         {/* Login Link */}
         <p className="mt-4 text-center">

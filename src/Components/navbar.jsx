@@ -1,16 +1,16 @@
-import { Link } from "react-router-dom";
-import { useContext } from "react";
-import { ThemeContext } from "../context/themeContext";
+// import { Link } from "react-router-dom";
+// import { useContext } from "react";
+// import { ThemeContext } from "../context/themeContext";
+// import Button from "./button";
 
 const Navbar = () => {
-  const { themeColors } = useContext(ThemeContext); 
-
+  // const { themeColors } = useContext(ThemeContext);
   // return (
   //   <nav
   //     className="w-200 p-5"
   //     style={{
-  //       backgroundColor: themeColors.backgroundColor, 
-  //       color: themeColors.textColor, 
+  //       backgroundColor: themeColors.backgroundColor,
+  //       color: themeColors.textColor,
   //     }}
   //   >
   //     <h1 className="text-xl font-bold text-center">Navbar</h1>

@@ -102,9 +102,8 @@ const ForgotPassword = () => {
           type="submit"
           className="w-full bg-blue-500 hover:bg-blue-600"
           disabled={loading}
-        >
-          {loading ? "Sending..." : "Send Reset Link"}
-        </Button>
+          text={loading ? "Sending..." : "Send Reset Link"}
+        />
 
         {/* Back to Login Link */}
         <p className="mt-4 text-center">

@@ -1,8 +1,7 @@
 import { useContext } from "react";
-import { BrowserRouter } from "react-router-dom";
 import { ThemeContext } from "./context/themeContext";
 import { UserProvider } from "./context/UserContext"; // Import the UserProvider
-import MyRoute from "./Pages";
+import MyRoute from "./route";
 
 function App() {
   const { theme, toggleTheme, themeColors } = useContext(ThemeContext);
@@ -24,11 +23,9 @@ function App() {
         minHeight: "100vh", // Ensures full page height
       }}
     >
-      <BrowserRouter>
-        <UserProvider>
-          <MyRoute />
-        </UserProvider>
-      </BrowserRouter>
+      <UserProvider>
+        <MyRoute />
+      </UserProvider>
       <button onClick={toggleTheme} style={buttonStyles}>
         Toggle Theme
       </button>
