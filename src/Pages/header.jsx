@@ -5,8 +5,12 @@ import { useNavigate } from "react-router-dom";
 const Header = () => {
   const { themeColors } = useContext(ThemeContext);
   const navigate = useNavigate();
-  const handleRegisterClick = () => {
-    navigate("/register"); // Navigate to the registration page
+  const handleLoginClick = () => {
+    navigate("/login"); // Navigate to the registration page
+  };
+
+  const handleMessage = () => {
+    navigate("/chat"); // Navigate to the registration page
   };
 
   return (
@@ -17,7 +21,10 @@ const Header = () => {
         color: themeColors.textColor,
       }}
     >
-      <div className="w-28 md:flex text-red-800 bg-white font-semibold">
+      <div
+        className="w-28 md:flex text-red-800 bg-white font-semibold"
+        onClick={handleMessage}
+      >
         LOGO
       </div>
 
@@ -48,7 +55,7 @@ const Header = () => {
               backgroundColor: themeColors.buttonOrangeBg,
               color: themeColors.buttonPrimaryText,
             }}
-            onClick={handleRegisterClick}
+            onClick={handleLoginClick}
           >
             Hello!
             <span

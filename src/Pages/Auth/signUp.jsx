@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import useApi from "../../hooks/useApi";
 import Button from "../../Components/button";
 import { registerUser } from "../../api/userApi"; // API function
 
 const RegistrationForm = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
+
   // State for form inputs
   const [formData, setFormData] = useState({
     firstname: "",
@@ -67,17 +69,19 @@ const RegistrationForm = () => {
 
     if (validateForm()) {
       try {
-        await register(formData); // Call the API using the custom hook
-        alert("Registration successful!");
-        // Clear form
-        setFormData({
-          firstname: "",
-          surname: "",
-          username: "",
-          dob: "",
-          email: "",
-          password: "",
-        });
+        const result = await register(
+          "http://localhost:5000/auth/register",
+          "POST",
+          formData,
+        );
+        console.log("Registration response:", result); // Debug response
+
+        alert("Registration successful! Redirecting to login page...");
+
+        // Redirect to the login page after 5 seconds
+        setTimeout(() => {
+          navigate("/login"); // Use navigate to redirect
+        }, 5000); // 5000 milliseconds = 5 seconds
       } catch (err) {
         // Error is already handled by the useApi hook
         console.error("Registration error:", err);
