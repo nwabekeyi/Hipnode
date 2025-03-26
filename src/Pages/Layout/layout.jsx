@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import Header from "../header";
+import Header from "./header";
 import SidebarLeft from "./sidebarLeft"; // Left Sidebar Component
 import SidebarRight from "./sidebarRight"; // Right Sidebar Component
 import { ThemeContext } from "../../context/themeContext";

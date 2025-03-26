@@ -339,7 +339,7 @@ const PublishingInterface = () => {
 
 // Element and Leaf rendering
 const Element = ({ attributes, children, element }) => {
-  const style = {};
+  const style = {textAlign: element.align || 'left'};
   if (isAlignElement(element)) {
     style.textAlign = element.align;
   }
