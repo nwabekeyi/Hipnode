@@ -14,6 +14,7 @@ const Layout = () => {
       style={{
         backgroundColor: themeColors.background,
         color: themeColors.textColor,
+        minHeight: "100vh",
       }}
     >
       {/* Header (fixed at the top) */}

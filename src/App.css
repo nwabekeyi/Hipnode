@@ -3,6 +3,7 @@
   text-align: center;
   height: 100vh; /* Ensure the root takes full viewport height */
   overflow: hidden; /* Prevent root from scrolling, let children handle it */
+  background-color: inherit; /* Allow theme colors to be inherited */
 }
 
 /* Global Webkit Scrollbar Styling */

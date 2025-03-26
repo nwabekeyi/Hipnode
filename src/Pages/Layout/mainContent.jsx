@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Outlet } from "react-router-dom";
 import InputField from "../../Components/inputField";
 import Btc from "../../assets/Btc.jpg";
@@ -6,12 +6,13 @@ import Seo from "../../assets/Seo.jpg";
 import One from "../../assets/One.jpg";
 import Design from "../../assets/Design.jpg";
 import Button from "../../Components/button";
-import { useContext } from "react";
 import { PublishContext } from "../../context/publishContext";
+import { ThemeContext } from "../../context/themeContext";
 
 const MainContent = () => {
   const [inputValue, setInputValue] = useState("");
-  const {openPublisher} = useContext(PublishContext)
+  const { openPublisher } = useContext(PublishContext);
+  const { themeColors } = useContext(ThemeContext);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -22,7 +23,6 @@ const MainContent = () => {
     openPublisher();
     console.log("Create Post button clicked!");
   };
-
 
   const mockData = [
     {
@@ -84,18 +84,29 @@ const MainContent = () => {
   ];
 
   return (
-    <div className="main-content w-full ml-16 md:ml-56 mr-16 md:mr-72 p-4 flex-1">
+    <div
+      className="main-content w-full ml-16 md:ml-56 mr-16 md:mr-72 p-4 flex-1"
+      style={{
+        backgroundColor: themeColors.background,
+        color: themeColors.textColor,
+      }}
+    >
       {/* Input Field and Button */}
-      <div className="bg-white p-4 rounded-xl shadow-sm">
+      <div
+        className="p-4 rounded-xl shadow-sm"
+        style={{
+          backgroundColor: themeColors.inputBgPrimary,
+        }}
+      >
         <div className="flex items-center gap-4">
           <div className="flex-grow">
             <InputField
-              onFocus ={handleCreatePost}
+              onFocus={handleCreatePost}
               type="text"
               placeholder="Let's share what's going on your mind..."
               value={inputValue}
               onChange={handleInputChange}
-              backgroundColor="#f8f8f8"
+              backgroundColor={themeColors.inputBgPrimary}
               style={{
                 height: "48px",
                 fontSize: "15px",
@@ -103,6 +114,7 @@ const MainContent = () => {
                 borderRadius: "4px",
                 paddingLeft: "24px",
                 paddingRight: "24px",
+                color: themeColors.textColor,
               }}
             />
           </div>
@@ -118,7 +130,10 @@ const MainContent = () => {
       {mockData.map((item) => (
         <div
           key={item.id}
-          className="bg-white flex rounded-xl mt-5 p-4 h-[200px]"
+          className="flex rounded-xl mt-5 p-4 h-[200px]"
+          style={{
+            backgroundColor: themeColors.inputBgPrimary,
+          }}
         >
           {/* Image */}
           <div className="w-38 h-38 flex-shrink-0 mr-4">
@@ -132,14 +147,23 @@ const MainContent = () => {
           {/* Content */}
           <div className="flex-1">
             {/* Title */}
-            <h2 className="text-lg font-semibold mb-2 pt-2">{item.title}</h2>
+            <h2
+              className="text-lg font-semibold mb-2 pt-2"
+              style={{ color: themeColors.textColor }}
+            >
+              {item.title}
+            </h2>
 
             {/* Tags */}
             <div className="flex space-x-2 mb-4">
               {item.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded ml-10 mt-4"
+                  className="text-sm px-3 py-1 rounded ml-10 mt-4"
+                  style={{
+                    backgroundColor: themeColors.secondaryColor,
+                    color: themeColors.textColor,
+                  }}
                 >
                   #{tag}
                 </span>
@@ -149,21 +173,36 @@ const MainContent = () => {
             {/* Author, Time, Views, Likes, Comments */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold pt-4 pl-12">
+                <p
+                  className="text-sm font-semibold pt-4 pl-12"
+                  style={{ color: themeColors.textColor }}
+                >
                   {item.details.author}
                 </p>
-                <p className="text-xs text-gray-500 pl-12">
+                <p
+                  className="text-xs pl-12"
+                  style={{ color: themeColors.secondaryColor }}
+                >
                   {item.details.time}
                 </p>
               </div>
               <div className="flex space-x-4">
-                <p className="text-sm text-gray-600 pr-6">
+                <p
+                  className="text-sm pr-6"
+                  style={{ color: themeColors.secondaryColor }}
+                >
                   {item.details.views}
                 </p>
-                <p className="text-sm text-gray-600 pr-6">
+                <p
+                  className="text-sm pr-6"
+                  style={{ color: themeColors.secondaryColor }}
+                >
                   {item.details.likes}
                 </p>
-                <p className="text-sm text-gray-600 pr-6">
+                <p
+                  className="text-sm pr-6"
+                  style={{ color: themeColors.secondaryColor }}
+                >
                   {item.details.comments}
                 </p>
               </div>
@@ -173,8 +212,12 @@ const MainContent = () => {
       ))}
 
       {/* Remaining empty divs */}
-      <div className="bg-white flex justify-center h-[250px] rounded-xl mt-5"></div>
-  
+      <div
+        className="flex justify-center h-[250px] rounded-xl mt-5"
+        style={{
+          backgroundColor: themeColors.inputBgPrimary,
+        }}
+      ></div>
     </div>
   );
 };
