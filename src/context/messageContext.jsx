@@ -5,14 +5,12 @@ const MessagingContext = createContext();
 export const MessagingProvider = ({ children, userId }) => {
   const [messages, setMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [typingUsers, setTypingUsers] = useState(new Set()); // Track typing users
+  const [typingUsers, setTypingUsers] = useState(new Set());
   const ws = useRef(null);
   const reconnectInterval = useRef(null);
 
   const connectWebSocket = (url) => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      return;
-    }
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) return;
 
     console.log("Connecting to WebSocket:", url);
     ws.current = new WebSocket(url);
@@ -25,24 +23,25 @@ export const MessagingProvider = ({ children, userId }) => {
     ws.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log("📩 New message received:", data);
         switch (data.type) {
           case "message":
-            console.log("📩 New message received:", data);
-            setMessages((prev) => [...prev, data]);
+            setMessages((prev) => {
+              const updated = [...prev, data];
+              console.log("Messages state updated:", updated);
+              return updated;
+            });
             break;
           case "onlineUsers":
-            console.log("👥 Online users updated:", data.users);
-            setOnlineUsers(data.users);
+            console.log("👥 Online users updated:", data.data);
+            setOnlineUsers(data.data);
             break;
           case "typing":
             console.log("✍️ Typing event:", data);
             setTypingUsers((prev) => {
               const newSet = new Set(prev);
-              if (data.isTyping) {
-                newSet.add(data.fromUserId);
-              } else {
-                newSet.delete(data.fromUserId);
-              }
+              if (data.isTyping) newSet.add(data.fromUserId);
+              else newSet.delete(data.fromUserId);
               return newSet;
             });
             break;
@@ -54,9 +53,7 @@ export const MessagingProvider = ({ children, userId }) => {
       }
     };
 
-    ws.current.onerror = (error) => {
-      console.error("❌ WebSocket error:", error);
-    };
+    ws.current.onerror = (error) => console.error("❌ WebSocket error:", error);
 
     ws.current.onclose = () => {
       console.log("🔌 WebSocket disconnected, retrying...");
@@ -96,11 +93,8 @@ export const MessagingProvider = ({ children, userId }) => {
       const url = `ws://localhost:5000?userId=${userId}`;
       connectWebSocket(url);
     }
-
     return () => {
-      if (ws.current) {
-        ws.current.close();
-      }
+      if (ws.current) ws.current.close();
       clearInterval(reconnectInterval.current);
     };
   }, [userId]);
@@ -123,8 +117,7 @@ export const MessagingProvider = ({ children, userId }) => {
 
 export const useMessaging = () => {
   const context = React.useContext(MessagingContext);
-  if (!context) {
+  if (!context)
     throw new Error("useMessaging must be used within a MessagingProvider");
-  }
   return context;
 };

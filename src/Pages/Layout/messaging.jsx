@@ -5,11 +5,9 @@ import { useMessaging } from "../../context/messageContext";
 
 const ChatPage = () => {
   const navigate = useNavigate();
-
   const user = sessionStorage.getItem("user");
   const parsedUser = user ? JSON.parse(user) : null;
   const userId = parsedUser?._id || null;
-
   console.log("User ID:", userId);
 
   useEffect(() => {
@@ -30,15 +28,34 @@ const ChatPage = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [notifications, setNotifications] = useState([]); // Store notifications with counts
+  const [notifications, setNotifications] = useState([]);
+  const [recentChats, setRecentChats] = useState(() => {
+    const saved = localStorage.getItem("recentChats");
+    return saved ? JSON.parse(saved) : [];
+  });
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const lastViewedTimestamps = useRef({});
+
+  // Persist recentChats to localStorage
+  useEffect(() => {
+    localStorage.setItem("recentChats", JSON.stringify(recentChats));
+  }, [recentChats]);
 
   const openChatModal = async (chat) => {
     setSelectedChat(chat);
     setIsModalOpen(true);
     setIsLoading(true);
     setError(null);
+
+    // Add or update recent chats
+    setRecentChats((prev) => {
+      const exists = prev.some((c) => c.id === chat.id);
+      if (!exists) {
+        return [...prev, { id: chat.id, name: chat.name, lastMessage: "" }];
+      }
+      return prev;
+    });
 
     try {
       const response = await fetch(
@@ -57,20 +74,40 @@ const ChatPage = () => {
         );
         return [...prev, ...newMessages];
       });
+
+      const latestMessage = chatHistory[chatHistory.length - 1];
+      if (latestMessage) {
+        lastViewedTimestamps.current[chat.id] = latestMessage.timestamp;
+        setRecentChats((prev) =>
+          prev.map((c) =>
+            c.id === chat.id ? { ...c, lastMessage: latestMessage.message } : c,
+          ),
+        );
+      }
+
+      setNotifications((prev) => {
+        const updated = prev.filter((notif) => notif.fromUserId !== chat.id);
+        console.log("Notifications after opening chat:", updated);
+        return updated;
+      });
     } catch (error) {
       console.error("Error fetching chat history:", error);
       setError("Failed to load chat history. Please try again.");
     } finally {
       setIsLoading(false);
     }
-
-    // Clear notifications for this user when chat is opened
-    setNotifications((prev) =>
-      prev.filter((notif) => notif.fromUserId !== chat.id),
-    );
   };
 
   const closeChatModal = () => {
+    if (selectedChat) {
+      setNotifications((prev) => {
+        const updated = prev.filter(
+          (notif) => notif.fromUserId !== selectedChat.id,
+        );
+        console.log("Notifications after closing modal:", updated);
+        return updated;
+      });
+    }
     setSelectedChat(null);
     setIsModalOpen(false);
   };
@@ -88,6 +125,13 @@ const ChatPage = () => {
       console.log("Sending message:", messageData);
       setMessages((prev) => [...prev, messageData]);
       sendMessage(messageData);
+
+      // Update recentChats with the latest message
+      setRecentChats((prev) =>
+        prev.map((c) =>
+          c.id === selectedChat.id ? { ...c, lastMessage: message } : c,
+        ),
+      );
     }
   };
 
@@ -103,7 +147,6 @@ const ChatPage = () => {
     }
   };
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (isModalOpen && messagesEndRef.current && !isLoading && !error) {
       messagesEndRef.current.scrollTo({
@@ -113,96 +156,175 @@ const ChatPage = () => {
     }
   }, [messages, isModalOpen, isLoading, error]);
 
-  // Listen for new messages and accumulate notifications
   useEffect(() => {
     if (messages.length > 0) {
       const latestMessage = messages[messages.length - 1];
       console.log("Latest message in state:", latestMessage);
 
-      if (latestMessage.fromUserId !== userId) {
-        if (
-          !isModalOpen ||
-          (selectedChat && latestMessage.fromUserId !== selectedChat.id)
-        ) {
-          setNotifications((prev) => {
-            const existingNotif = prev.find(
-              (notif) => notif.fromUserId === latestMessage.fromUserId,
+      const lastViewed =
+        lastViewedTimestamps.current[latestMessage.fromUserId] || "0";
+      if (
+        latestMessage.fromUserId !== userId &&
+        (!isModalOpen ||
+          (selectedChat && latestMessage.fromUserId !== selectedChat.id)) &&
+        new Date(latestMessage.timestamp) > new Date(lastViewed)
+      ) {
+        setNotifications((prev) => {
+          const existingNotif = prev.find(
+            (notif) => notif.fromUserId === latestMessage.fromUserId,
+          );
+          if (existingNotif) {
+            const updated = prev.map((notif) =>
+              notif.fromUserId === latestMessage.fromUserId
+                ? { ...notif, count: notif.count + 1 }
+                : notif,
             );
-            if (existingNotif) {
-              // Increment count for existing sender
-              return prev.map((notif) =>
-                notif.fromUserId === latestMessage.fromUserId
-                  ? { ...notif, count: notif.count + 1 }
-                  : notif,
+            console.log("Updated notifications (increment):", updated);
+            return updated;
+          } else {
+            const newNotification = {
+              fromUserId: latestMessage.fromUserId,
+              message: latestMessage.message,
+              timestamp: latestMessage.timestamp,
+              id: Date.now(),
+              count: 1,
+            };
+            console.log("New notification added:", newNotification);
+
+            setTimeout(() => {
+              setNotifications((current) =>
+                current.map((notif) =>
+                  notif.id === newNotification.id
+                    ? { ...notif, hidden: true }
+                    : notif,
+                ),
               );
-            } else {
-              // Add new notification with count 1
-              const newNotification = {
-                fromUserId: latestMessage.fromUserId,
-                message: latestMessage.message,
-                timestamp: latestMessage.timestamp,
-                id: Date.now(),
-                count: 1, // Start with 1 unread message
-              };
-              console.log("New notification added:", newNotification);
+            }, 5000);
 
-              // Auto-hide popup after 3 seconds
-              setTimeout(() => {
-                setNotifications((current) =>
-                  current.map((notif) =>
-                    notif.id === newNotification.id
-                      ? { ...notif, hidden: true } // Mark as hidden but keep count
-                      : notif,
-                  ),
-                );
-              }, 3000);
+            const updated = [...prev, newNotification];
+            console.log("Updated notifications (new):", updated);
+            return updated;
+          }
+        });
 
-              return [...prev, newNotification];
-            }
-          });
-        }
+        // Update recentChats with incoming message
+        setRecentChats((prev) =>
+          prev.map((c) =>
+            c.id === latestMessage.fromUserId
+              ? { ...c, lastMessage: latestMessage.message }
+              : c,
+          ),
+        );
       }
     }
   }, [messages, userId, isModalOpen, selectedChat]);
 
-  // Clear notification when opening the relevant chat
   const handleOpenChatFromNotification = (chatId) => {
-    openChatModal({ id: chatId, name: `User ${chatId}` });
-    setNotifications((prev) =>
-      prev.filter((notif) => notif.fromUserId !== chatId),
-    );
+    const user = onlineUsers.find((u) => u.id === chatId);
+    openChatModal({ id: chatId, name: user?.username || `User ${chatId}` });
   };
 
+  useEffect(() => {
+    console.log("Current notifications state:", notifications);
+  }, [notifications]);
+
   return (
-    <div className="flex h-screen bg-gray-100 p-4">
-      {/* Online Users List */}
-      <div className="w-1/4 bg-white rounded-lg shadow-md p-4 overflow-y-auto relative">
-        <h2 className="text-xl font-bold mb-4">Online Users</h2>
-        {onlineUsers.length > 0 ? (
-          onlineUsers
-            .filter((id) => id !== userId)
-            .map((id) => {
-              const unreadCount =
-                notifications.find((notif) => notif.fromUserId === id)?.count ||
-                0;
-              return (
-                <div
-                  key={id}
-                  onClick={() => openChatModal({ id, name: `User ${id}` })}
-                  className="p-3 hover:bg-gray-100 rounded-lg cursor-pointer relative"
-                >
-                  <h3 className="font-semibold">User {id}</h3>
-                  <p className="text-sm text-gray-600">Tap to chat</p>
-                  {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
-                      {unreadCount}
-                    </span>
-                  )}
-                </div>
-              );
-            })
-        ) : (
-          <p className="text-gray-500">No users online</p>
+    <div className="flex justify-end h-screen bg-gray-100 p-4">
+      {/* Online Users and Recent Chats List */}
+      <div
+        className="w-1/5 h-[350px] bg-white rounded-lg p-2 overflow-x-auto relative"
+        style={{ position: "absolute", top: "70px", right: "100px" }}
+      >
+        <h2 className="text-xl text-left font-semibold text[small] mb-1">
+          Messages
+        </h2>
+
+        {/* Online Users */}
+        {onlineUsers.length > 0 && (
+          <div className="mb-2  h-25">
+            <h3 className="text-lg text-left font-normal mb-2">Online Users</h3>
+            <div className="flex flex-row gap-4 p-0">
+              {onlineUsers
+                .filter((user) => user.id !== userId)
+                .map((user) => {
+                  // const unreadCount = notifications.find((notif) => notif.fromUserId === user.id)?.count || 0;
+                  return (
+                    <div
+                      key={user.id}
+                      onClick={() =>
+                        openChatModal({
+                          id: user.id,
+                          name: user.username || `User ${user.id}`,
+                        })
+                      }
+                      className="flex flex-col items-center w-auto h-auto p-0 rounded-full cursor-pointer relative hover:opacity-80 shrink-0"
+                    >
+                      <div className="w-10 h-10 bg-orange-600 flex rounded-full items-center justify-center relative">
+                        <span className="text-white flex justify-center items-center font-semibold">
+                          {user.username
+                            ? user.username[0].toUpperCase()
+                            : user.id[0].toUpperCase()}
+                        </span>
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                      </div>
+                      <h3 className="text-sm font-semibold text-black">
+                        {user.username || `User ${user.id}`}
+                      </h3>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
+
+        {/* Recent Chats */}
+        {recentChats.length > 0 && (
+          <div>
+            <h3 className="text-lg text-left font-normal mb-2">Recent Chats</h3>
+            <div className="flex flex-row gap-4">
+              {recentChats.map((chat) => {
+                const unreadCount =
+                  notifications.find((notif) => notif.fromUserId === chat.id)
+                    ?.count || 0;
+                const isOnline = onlineUsers.some((u) => u.id === chat.id);
+                return (
+                  <div
+                    key={chat.id}
+                    onClick={() =>
+                      openChatModal({ id: chat.id, name: chat.name })
+                    }
+                    className="flex items-center w-full p-2 cursor-pointer relative hover:opacity-80 shrink-0"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center relative">
+                      <span className="text-white font-semibold">
+                        {chat.name[0].toUpperCase()}
+                      </span>
+                      {isOnline && (
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <span className="absolute right-0 w-5 h-5 bg-orange-600 text-white text-xs flex items-center justify-center rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
+                    <div className="ml-2">
+                      <h3 className="text-sm text-left font-semibold">
+                        {chat.name}
+                      </h3>
+                      <p className="text-xs text-left text-gray-600 truncate max-w-[100px]">
+                        {chat.lastMessage || "No messages yet"}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {recentChats.length === 0 && onlineUsers.length === 0 && (
+          <p className="text-gray-500">No recent chats or users online</p>
         )}
       </div>
 
@@ -210,21 +332,28 @@ const ChatPage = () => {
       {notifications.length > 0 && (
         <div className="absolute top-4 right-4 z-10">
           {notifications
-            .filter((notif) => !notif.hidden) // Only show non-hidden notifications
-            .map((notif) => (
-              <div
-                key={notif.id}
-                className="bg-white p-2 mb-2 rounded-lg shadow-md cursor-pointer"
-                onClick={() => handleOpenChatFromNotification(notif.fromUserId)}
-              >
-                <p className="text-sm">
-                  `New message from User {notif.fromUserId}: ${notif.message}`
-                </p>
-                <small className="text-xs text-gray-400">
-                  {new Date(notif.timestamp).toLocaleTimeString()}
-                </small>
-              </div>
-            ))}
+            .filter((notif) => !notif.hidden)
+            .map((notif) => {
+              const user = onlineUsers.find((u) => u.id === notif.fromUserId);
+              return (
+                <div
+                  key={notif.id}
+                  className="bg-white p-2 mb-2 rounded-lg shadow-md cursor-pointer"
+                  onClick={() =>
+                    handleOpenChatFromNotification(notif.fromUserId)
+                  }
+                >
+                  <p className="text-sm">
+                    New message from{" "}
+                    {user?.username || `User ${notif.fromUserId}`}: `&#34;`
+                    {notif.message}`&#34;`
+                  </p>
+                  <small className="text-xs text-gray-400">
+                    {new Date(notif.timestamp).toLocaleTimeString()}
+                  </small>
+                </div>
+              );
+            })}
         </div>
       )}
 
@@ -271,7 +400,7 @@ const ChatPage = () => {
                         }`}
                       >
                         <div
-                          className={`max-w-[70%] p-3 rounded-lg ${
+                          className={`max-w-[70%] p-3 mb-2 mx-2 rounded-lg ${
                             msg.fromUserId === userId
                               ? "bg-blue-500 text-white"
                               : "bg-gray-200 text-gray-800"
