@@ -1,6 +1,13 @@
 import React, { useEffect, useRef } from "react";
 
-const Modal = ({ isOpen, onClose, children, size = "md" }) => {
+const Modal = ({
+  isOpen,
+  onClose,
+  children,
+  size = "md",
+  height,
+  position = "center", // New prop for positioning
+}) => {
   const modalRef = useRef();
 
   // Handle click outside the modal
@@ -22,30 +29,61 @@ const Modal = ({ isOpen, onClose, children, size = "md" }) => {
     };
   }, [isOpen, onClose]);
 
-  // Define size classes
+  // Define size classes (width only)
   const sizeClasses = {
-    sm: "w-80 h-48", // Small modal
-    md: "w-96 h-64", // Medium modal (default)
-    lg: "w-120 h-96", // Large modal
-    full: "w-full h-full", // Full-screen modal
+    sm: "w-80",
+    md: "w-96",
+    lg: "w-120",
+    full: "w-full",
   };
 
-  // Get the appropriate size class
-  const modalSizeClass = sizeClasses[size] || sizeClasses["md"];
+  // Define default height classes (used if height prop is not provided)
+  const heightClasses = {
+    sm: "h-48",
+    md: "h-64",
+    lg: "h-96",
+    full: "h-full",
+  };
+
+  // Define position classes
+  const positionClasses = {
+    center: "items-center justify-center", // Default: centered
+    top: "items-start justify-center pt-10",
+    bottom: "items-end justify-center pb-10",
+    left: "items-center justify-start pl-10",
+    right: "items-center justify-end pr-10",
+    "top-left": "items-start justify-start pt-10 pl-10",
+    "top-right": "items-start justify-end pt-10 pr-10",
+    "bottom-left": "items-end justify-start pb-10 pl-10",
+    "bottom-right": "items-end justify-end pb-10 pr-10",
+  };
+
+  // Get the appropriate classes
+  const modalWidthClass = sizeClasses[size] || sizeClasses["md"];
+  const modalHeightClass = height
+    ? { height } // Custom height as inline style
+    : { className: heightClasses[size] || heightClasses["md"] };
+  const modalPositionClass =
+    positionClasses[position] || positionClasses["center"];
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+    <div
+      className={`absolute inset-0 flex bg-black bg-opacity-50 z-[100] grid ${modalPositionClass}`}
+    >
       <div
         ref={modalRef}
-        className={`bg-white rounded-lg shadow-lg ${modalSizeClass} mx-4 p-6 z-10 overflow-auto`}
+        className={`bg-white rounded-lg ${modalWidthClass} mx-4 p-3 z-10 overflow-auto ${
+          modalHeightClass.className || ""
+        }`}
+        style={height ? { height } : undefined}
       >
         <button
           className="absolute top-0 right-0 mt-4 mr-4 text-gray-600 hover:text-gray-900"
           onClick={onClose}
         >
-          &times;
+          ×
         </button>
         {children}
       </div>

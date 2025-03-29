@@ -6,9 +6,12 @@ import Seo from "../../assets/Seo.jpg";
 import One from "../../assets/One.jpg";
 import Design from "../../assets/Design.jpg";
 import Button from "../../Components/button";
+import { useContext } from "react";
+import { PublishContext } from "../../context/publishContext";
 
 const MainContent = () => {
   const [inputValue, setInputValue] = useState("");
+  const { openPublisher } = useContext(PublishContext);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -16,6 +19,7 @@ const MainContent = () => {
   };
 
   const handleCreatePost = () => {
+    openPublisher();
     console.log("Create Post button clicked!");
   };
 
@@ -85,6 +89,7 @@ const MainContent = () => {
         <div className="flex items-center gap-4">
           <div className="flex-grow">
             <InputField
+              onFocus={handleCreatePost}
               type="text"
               placeholder="Let's share what's going on your mind..."
               value={inputValue}

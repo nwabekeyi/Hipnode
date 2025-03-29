@@ -1,3 +1,4 @@
+// src/context/messageContext.jsx
 import React, { createContext, useState, useEffect, useRef } from "react";
 
 const MessagingContext = createContext();
@@ -6,6 +7,7 @@ export const MessagingProvider = ({ children, userId }) => {
   const [messages, setMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUsers, setTypingUsers] = useState(new Set());
+  const [lastSeen, setLastSeen] = useState({}); // Added to track last seen times
   const ws = useRef(null);
   const reconnectInterval = useRef(null);
 
@@ -18,6 +20,8 @@ export const MessagingProvider = ({ children, userId }) => {
     ws.current.onopen = () => {
       console.log("✅ WebSocket connected");
       clearInterval(reconnectInterval.current);
+      // Send user connection info after opening
+      ws.current.send(JSON.stringify({ type: "userConnected", userId }));
     };
 
     ws.current.onmessage = (event) => {
@@ -44,6 +48,14 @@ export const MessagingProvider = ({ children, userId }) => {
               else newSet.delete(data.fromUserId);
               return newSet;
             });
+            break;
+          case "userDisconnected":
+            console.log("🚪 User disconnected:", data);
+            setLastSeen((prev) => ({
+              ...prev,
+              [data.userId]: data.timestamp || new Date().toISOString(),
+            }));
+            setOnlineUsers((prev) => prev.filter((u) => u.id !== data.userId));
             break;
           default:
             console.warn("⚠️ Unknown message type:", data);
@@ -108,6 +120,7 @@ export const MessagingProvider = ({ children, userId }) => {
         setMessages,
         typingUsers,
         sendTyping,
+        lastSeen, // Expose lastSeen to consumers
       }}
     >
       {children}

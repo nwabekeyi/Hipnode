@@ -1,70 +1,127 @@
-import { useContext } from "react";
-import { ThemeContext } from "../../context/themeContext";
-import Button from "../../Components/button";
-import Inputfield from "../../Components/inputField";
+// src/components/header.jsx
+import React, { useContext, useState } from "react";
+import { ThemeContext } from "../../context/themeContext"; // Adjust path
+import {
+  FaHome,
+  FaCalendarAlt,
+  FaComments,
+  FaMicrophone,
+  FaSearch,
+  FaEnvelope,
+  FaBell,
+  FaUserCircle,
+  FaChevronDown,
+  FaMoon,
+  FaSun,
+} from "react-icons/fa";
+import { Link } from "react-router-dom";
 
-const Header = () => {
-  const { themeColors } = useContext(ThemeContext);
+const Header = ({ onEnvelopeClick }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  <div
-    className="header fixed top-0 left-0 w-full flex justify-between items-center p-4 min-h-16 z-50 shadow-md"
-    style={{
-      backgroundColor: themeColors.headerColor,
-      color: themeColors.textColor,
-    }}
-  >
-    <div className="w-28 md:flex text-red-800 bg-white font-semibold">LOGO</div>
-    <div className="w-28 md:flex mb-8 text-red-800 bg-white font-semibold">
-      LOGO
-    </div>
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
-    <div>
-      <h1 className="text-xl font-semibold">Welcome to Hipnode</h1>
-      <p>Tracy</p>
-    </div>
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
-    <div className="flex items-center space-x-5">
-      {/* Search Box */}
-      <div className="hidden md:flex">
-        <input
-          type="text"
-          placeholder="Search..."
-          className="px-4 py-2 rounded-md"
-          style={{
-            backgroundColor: themeColors.input1,
-            color: themeColors.textColor,
-          }}
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      console.log("Searching for:", searchQuery);
+      setTimeout(() => {
+        console.log(`Results for "${searchQuery}" fetched!`);
+      }, 1000);
+    }
+  };
+
+  const handleVoiceSearch = () => {
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.start();
+    recognition.onresult = (event) => {
+      setSearchQuery(event.results[0][0].transcript);
+    };
+  };
+
+  return (
+    <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 h-16 z-50 shadow-md bg-white dark:bg-gray-900">
+      <div className="logo">
+        <h1 className="text-3xl p-2 font-bold text-gray-800 dark:text-white">
+          Hipnode
+        </h1>
+      </div>
+
+      <div className="flex gap-6">
+        <Link to="/">
+          <FaHome className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300" />
+        </Link>
+        <Link to="/calendar">
+          <FaCalendarAlt className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300" />
+        </Link>
+        <Link to="/groups">
+          <FaComments className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300" />
+        </Link>
+        <FaMicrophone
+          className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300"
+          onClick={handleVoiceSearch}
         />
       </div>
 
-      {/* Notification Button */}
-      <div className="flex items-center space-x-5">
-        <Button
-          className="relative text-2xl px-4 py-2 rounded-md"
-          style={{
-            backgroundColor: themeColors.buttonOrangeBg,
-            color: themeColors.buttonColor1Text,
-          }}
+      <form
+        className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-2 flex-1 max-w-md mx-4"
+        onSubmit={handleSearchSubmit}
+      >
+        <FaSearch className="text-gray-600 dark:text-gray-300 mr-2" />
+        <input
+          type="text"
+          placeholder="Type here to search..."
+          className="bg-transparent outline-none flex-1 text-gray-700 dark:text-white placeholder-gray-500"
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+      </form>
+
+      <div className="flex items-center gap-6 relative">
+        <FaEnvelope
+          className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300"
+          onClick={onEnvelopeClick}
+        />
+        <FaBell className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300" />
+        <button onClick={() => toggleTheme()}>
+          {theme !== "light" ? (
+            <FaSun className="text-xl text-yellow-500" />
+          ) : (
+            <FaMoon className="text-xl text-gray-600 dark:text-gray-300" />
+          )}
+        </button>
+
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
-          Hello!
-          <span
-            className="absolute top-0 right-0 -mt-1 -mr-1 flex justify-center items-center text-[10px] w-5 h-4 rounded-full border-2 border-white"
-            style={{
-              backgroundColor: themeColors.buttonColor1Color,
-              color: themeColors.buttonColor1TextColor,
-            }}
-          >
-            15
-          </span>
-        </Button>
-        {/* Theme Toggle Button */}
-        {/* <button onClick={toggleTheme} style={buttonStyles}>
-            Toggle Theme
-          </button> */}
+          <FaUserCircle className="text-xl text-gray-600 dark:text-gray-300" />
+          <span className="text-sm text-gray-800 dark:text-white">Tracy</span>
+          <FaChevronDown className="text-xs text-gray-600 dark:text-gray-300" />
+        </div>
+
+        {isDropdownOpen && (
+          <div className="absolute top-10 right-0 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2 z-10">
+            <p className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm">
+              Profile
+            </p>
+            <p className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm">
+              Settings
+            </p>
+            <p className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm">
+              Logout
+            </p>
+          </div>
+        )}
       </div>
-    </div>
-    <Inputfield />
-  </div>;
+    </header>
+  );
 };
 
 export default Header;
