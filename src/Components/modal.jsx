@@ -36,7 +36,7 @@ const Modal = ({ isOpen, onClose, children, size = "md" }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[100] grid">
+    <div className="absolute inset-0 items-center justify-center bg-black bg-opacity-50 z-[100] grid">
       <div
         ref={modalRef}
         className={`bg-white rounded-lg ${modalSizeClass} mx-4 p-3 z-10 overflow-auto h-[auto]`}
