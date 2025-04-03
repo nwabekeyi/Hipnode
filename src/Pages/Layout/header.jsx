@@ -13,19 +13,22 @@ import {
   FaMoon,
   FaSun,
   FaCog,
-  FaSignOutAlt,
+  FaSignOutAlt
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate(); // Added useNavigate hook
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
-  const { theme, toggleTheme, themeColors } = useContext(ThemeContext);
-  const navigate = useNavigate();
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
-  const handleSearchChange = (e) => setSearchQuery(e.target.value);
-
+  // Handle search form submission (mock API call)
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -128,42 +131,23 @@ const Header = () => {
           value={searchQuery}
           onChange={handleSearchChange}
         />
-        {/* Add the Post button here */}
         <button
-          type="submit"
+          type="button" // Changed to type="button" since it's for posting, not form submission
           onClick={handlePost}
-          style={{
-            backgroundColor:
-              theme === "light" ? themeColors.buttonOrangeBg : themeColors.buttonGreyBg,
-            color: theme === "light" ? themeColors.buttonPrimaryText : themeColors.buttonAccentText,
-          }}
-          className="ml-2 px-4 py-1 rounded-full text-sm font-semibold"
+          className={`ml-2 px-4 py-1 rounded-full text-sm font-semibold ${
+            theme === "light" 
+              ? "bg-orange-500 text-white hover:bg-orange-600" 
+              : "bg-gray-600 text-white hover:bg-gray-700"
+          }`}
         >
           Post
         </button>
       </form>
 
       <div className="flex items-center gap-6 relative">
-        <Link to="/messages" title="Messages">
-          <FaEnvelope
-            className={`text-xl ${
-              theme === "light" ? "text-gray-600 hover:text-gray-800" : "text-gray-300 hover:text-white"
-            } cursor-pointer`}
-          />
-        </Link>
-        <FaBell
-          className={`text-xl ${
-            theme === "light" ? "text-gray-600 hover:text-gray-800" : "text-gray-300 hover:text-white"
-          } cursor-pointer`}
-          title="Notifications"
-        />
-        <button
-          onClick={() => {
-            console.log("Theme toggle button clicked");
-            toggleTheme();
-          }}
-          title="Toggle Theme"
-        >
+        <FaEnvelope className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300" />
+        <FaBell className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300" />
+        <button onClick={() => toggleTheme()}>
           {theme === "light" ? (
             <FaMoon className="text-xl text-gray-600" />
           ) : (
@@ -175,11 +159,9 @@ const Header = () => {
           className="flex items-center gap-2 cursor-pointer"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
-          <FaUserCircle className={`text-xl ${theme === "light" ? "text-gray-600" : "text-gray-300"}`} />
-          <span className={`text-sm ${theme === "light" ? "text-gray-800" : "text-white"}`}>
-            Tracy
-          </span>
-          <FaChevronDown className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-300"}`} />
+          <FaUserCircle className="text-xl text-gray-600 dark:text-gray-300" />
+          <span className="text-sm text-gray-800 dark:text-white">Tracy</span>
+          <FaChevronDown className="text-xs text-gray-600 dark:text-gray-300" />
         </div>
 
         {isDropdownOpen && (
