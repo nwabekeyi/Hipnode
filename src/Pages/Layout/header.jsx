@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { ThemeContext } from "../../context/themeContext";
 import {
   FaHome,
@@ -12,15 +12,12 @@ import {
   FaChevronDown,
   FaMoon,
   FaSun,
-  FaApple,
-  FaPhone,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
- 
 
   const { theme, toggleTheme } = useContext(ThemeContext);
 
@@ -99,7 +96,7 @@ const Header = () => {
         <FaBell className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300" />
         {/* Dark Mode Toggle */}
         <button onClick={() => toggleTheme()}>
-          {theme !== 'light' ? (
+          {theme !== "light" ? (
             <FaSun className="text-xl text-yellow-500" />
           ) : (
             <FaMoon className="text-xl text-gray-600 dark:text-gray-300" />
@@ -112,9 +109,7 @@ const Header = () => {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
           <FaUserCircle className="text-xl text-gray-600 dark:text-gray-300" />
-          <span className="text-sm text-gray-800 dark:text-white">
-            Tracy
-          </span>
+          <span className="text-sm text-gray-800 dark:text-white">Tracy</span>
           <FaChevronDown className="text-xs text-gray-600 dark:text-gray-300" />
         </div>
 
@@ -137,5 +132,3 @@ const Header = () => {
 };
 
 export default Header;
-
-
