@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useContext } from "react";
+import { ThemeContext } from "../context/themeContext"; // Adjust path to your ThemeContext
 
 const Modal = ({
   isOpen,
@@ -8,6 +9,7 @@ const Modal = ({
   height,
   position = "center", // New prop for positioning
 }) => {
+  const { themeColors } = useContext(ThemeContext); // Access themeColors from ThemeContext
   const modalRef = useRef();
 
   // Handle click outside the modal
@@ -53,7 +55,7 @@ const Modal = ({
     left: "items-center justify-start pl-10",
     right: "items-center justify-end pr-10",
     "top-left": "items-start justify-start pt-10 pl-10",
-    "top-right": "items-start justify-end pt-10 pr-10",
+    "top-right": "items-start justify-end pt-28 pr-2",
     "bottom-left": "items-end justify-start pb-10 pl-10",
     "bottom-right": "items-end justify-end pb-10 pr-10",
   };
@@ -74,13 +76,20 @@ const Modal = ({
     >
       <div
         ref={modalRef}
-        className={`bg-white rounded-lg ${modalWidthClass} mx-4 p-3 z-10 overflow-auto ${
+        className={`rounded-lg ${modalWidthClass} mx-4 p-3 z-10 overflow-auto hide-scrollbar ${
           modalHeightClass.className || ""
         }`}
-        style={height ? { height } : undefined}
+        style={{
+          backgroundColor: themeColors.background, // #f7f7f7 (light) or #1d252a (dark)
+          color: themeColors.textColor, // #3f4354 (light) or #f7f7f7 (dark)
+          height: height ? height : undefined,
+        }}
       >
         <button
-          className="absolute top-0 right-0 mt-4 mr-4 text-gray-600 hover:text-gray-900"
+          className="absolute top-0 right-0 mt-4 mr-4"
+          style={{
+            color: themeColors.placeholderSecondary, // #dcdfe1 (light) or #52575c (dark)
+          }}
           onClick={onClose}
         >
           ×

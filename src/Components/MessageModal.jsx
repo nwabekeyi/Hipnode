@@ -1,10 +1,12 @@
-// src/components/MessageModal.jsx
 import React, { useState, useEffect, useRef } from "react";
 import Modal from "./modal"; // Adjust path
 import { useMessaging } from "../context/messageContext"; // Adjust path
 import { IoSendSharp } from "react-icons/io5";
+import { useContext } from "react";
+import { ThemeContext } from "../context/themeContext"; // Adjust path to your ThemeContext
 
 const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
+  const { theme, themeColors } = useContext(ThemeContext); // Access theme and themeColors
   const {
     messages,
     sendMessage,
@@ -23,6 +25,10 @@ const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Get current user's username from sessionStorage
+  const userInfo = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const currentUserName = userInfo.username || "User"; // Fallback to "User" if username not found
 
   useEffect(() => {
     localStorage.setItem("recentChats", JSON.stringify(recentChats));
@@ -132,7 +138,6 @@ const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
 
   if (!isOpen || !selectedChat) return null;
 
-  // Moved status logic here, after the null check
   const isUserOnline = onlineUsers.some((user) => user.id === selectedChat.id);
   const lastSeenTime = lastSeen[selectedChat.id]
     ? new Date(lastSeen[selectedChat.id]).toLocaleTimeString()
@@ -144,7 +149,7 @@ const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
       onClose={onClose}
       height="60%"
       position="bottom-right"
-      size="sm"
+      size="md"
     >
       <div className="h-full flex flex-col">
         <div className="border-b pb-4 mb-4 flex items-start">
@@ -154,7 +159,10 @@ const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
                 {selectedChat.name[0].toUpperCase()}
               </span>
             </div>
-            <span className="text-[10px] text-green-500 ">
+          </div>
+          <div className="flex flex-col items-start">
+            <h2 className="text-xl text-left font-bold">{selectedChat.name}</h2>
+            <span className="text-[10px] text-green-500">
               {isUserOnline
                 ? "Online"
                 : lastSeenTime
@@ -162,7 +170,6 @@ const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
                   : "Offline"}
             </span>
           </div>
-          <h2 className="text-xl text-left font-bold">{selectedChat.name}</h2>
         </div>
 
         {isLoading && (
@@ -179,7 +186,7 @@ const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
 
         {!isLoading && !error && (
           <>
-            <div ref={messagesEndRef} className="flex-1 overflow-y-auto mb-4">
+            <div ref={messagesEndRef} className="flex-1 overflow-y-scroll mb-1">
               {messages
                 .filter(
                   (msg) =>
@@ -190,24 +197,53 @@ const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
                 .map((msg, index) => (
                   <div
                     key={msg._id || index}
-                    className={`flex ${
+                    className={`flex items-start ${
                       msg.fromUserId === userId
                         ? "justify-end"
                         : "justify-start"
-                    }`}
+                    } mb-2`}
                   >
+                    {/* Incoming Message Avatar (Left) */}
+                    {msg.fromUserId !== userId && (
+                      <div className="mr-2">
+                        <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
+                          <span className="text-white font-semibold">
+                            {selectedChat.name[0].toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Message Content */}
                     <div
-                      className={`max-w-[70%] py-1 px-2 mb-2 mx-2 ${
+                      className={`py-1 px-2 rounded-tl-lg rounded-bl-lg rounded-br-lg ${
                         msg.fromUserId === userId
-                          ? "bg-orange-600 text-white rounded-tl-lg rounded-bl-lg rounded-br-lg"
-                          : "bg-orange-100 text-orange-600 rounded-tr-lg rounded-bl-lg rounded-br-lg"
+                          ? "bg-orange-600 text-white text-right"
+                          : "bg-orange-100 text-orange-600 text-left rounded-tr-lg"
                       }`}
+                      style={{
+                        width: "10ch",
+                        height: "auto",
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                      }}
                     >
                       <p>{msg.message}</p>
                       <small className="text-xs text-right text-[10px] text-gray-400 block mt-1">
                         {new Date(msg.timestamp).toLocaleTimeString()}
                       </small>
                     </div>
+
+                    {/* Outgoing Message Avatar (Right) */}
+                    {msg.fromUserId === userId && (
+                      <div className="ml-2">
+                        <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
+                          <span className="text-white font-semibold">
+                            {currentUserName[0].toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
             </div>
@@ -219,12 +255,20 @@ const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
           </>
         )}
 
-        <div className="border-t w-full pt-4 flex">
+        <div className="w-full pt-2 flex">
           <input
             ref={inputRef}
             type="text"
             placeholder="Type a message..."
-            className="flex-1 p-2 border rounded-lg"
+            className="flex-1 p-2 border rounded-lg focus:outline-none"
+            style={{
+              backgroundColor:
+                theme === "dark"
+                  ? themeColors.inputBg
+                  : themeColors.inputBgPrimary,
+              color: themeColors.textColor,
+              borderColor: themeColors.placeholderColor,
+            }}
             onKeyPress={(e) => {
               handleTyping();
               if (e.key === "Enter" && e.target.value.trim()) {

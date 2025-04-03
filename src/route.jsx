@@ -8,7 +8,6 @@ import { PublishContext } from "./context/publishContext";
 import ForgotPassword from "./Pages/Auth/ForgotPassword";
 import LoginPage from "./Pages/Auth/Login";
 import RegistrationForm from "./Pages/Auth/signUp";
-import ChatPage from "./Pages/Layout/messaging";
 import Modal from "./Components/modal";
 
 const MyRoutes = () => {
@@ -27,7 +26,6 @@ const MyRoutes = () => {
           <Route path="/register" element={<RegistrationForm />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/chat" element={<ChatPage />} />
         </Routes>
       </Router>
     </div>
