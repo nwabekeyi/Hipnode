@@ -1,26 +1,19 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Button from "../../Components/button";
 import useApi from "../../hooks/useApi";
-import { useUser } from "../../context/UserContext"; // Import the useUser hook
+import Button from "../../Components/button";
+import { motion } from "framer-motion";
 
-const LoginPage = () => {
-  const navigate = useNavigate(); // Initialize the navigate function
-  const { updateUser } = useUser(); // Get the updateUser function from UserContext
-
-  // State for form inputs
+const LoginForm = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  // State for validation errors
   const [errors, setErrors] = useState({});
+  const { execute: login, loading, error: apiError } = useApi();
+  const navigate = useNavigate();
 
-  // Use the useApi hook
-  const { execute: callApi, loading, error: apiError } = useApi();
-
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -29,7 +22,6 @@ const LoginPage = () => {
     });
   };
 
-  // Validate form inputs
   const validateForm = () => {
     const newErrors = {};
 
@@ -43,110 +35,262 @@ const LoginPage = () => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateForm()) {
       try {
-        // Call the login API
-        const response = await callApi(
+        const response = await login(
           "http://localhost:5000/auth/login",
           "POST",
           formData,
+          { isLogin: true },
         );
+        console.log("Login successful:", response);
 
-        // Save the access token and its expiry time
-        const { accessToken, expiresIn, user } = response; // Assuming the backend returns `expiresIn` and `user`
-        const expiryTime = Date.now() + expiresIn * 1000; // Convert to milliseconds
-        sessionStorage.setItem("accessToken", accessToken);
-        sessionStorage.setItem("accessTokenExpiry", expiryTime);
+        // Save user details to sessionStorage
+        if (response.user) {
+          sessionStorage.setItem("user", JSON.stringify(response.user));
+        } else {
+          console.warn("No user details in response");
+        }
 
-        // Save the user details in the UserContext
-        updateUser(user);
-
-        // The refresh token is automatically stored as a cookie (handled by the browser)
-        alert("Login successful!");
-        navigate("/"); // Redirect to the dashboard or home page
+        // Redirect to home page
+        navigate("/");
       } catch (err) {
-        console.error("Login error:", err);
-        alert(err.message || "An error occurred during login");
+        console.error("Login error:", err.message);
       }
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="min-h-screen bg-gray-50"
+    >
+      <div className="h-screen overflow-y-auto">
+        <div className="flex items-center justify-center p-4">
+          <div className="flex flex-col md:flex-row w-full max-w-4xl bg-white rounded-lg overflow-hidden shadow-sm my-8">
+            <motion.div
+              variants={itemVariants}
+              className="w-full md:w-2/5 p-4 md:p-8 flex flex-col justify-start"
+            >
+              <div>
+                <div className="flex items-center mb-4 md:mb-8 -ml-1">
+                  <div className="w-8 h-8 bg-[#1B224B] text-white flex items-center justify-center rounded-lg text-xl font-semibold mr-2">
+                    <span className="transform -translate-y-0.5">h</span>
+                  </div>
+                  <span className="text-[#FF4401] text-2xl font-semibold">
+                    Hipnode.
+                  </span>
+                </div>
+                <h1 className="text-xl md:text-2xl font-semibold text-gray-900 mb-4 md:mb-8">
+                  Join a thriving community of entrepreneurs and developers.
+                </h1>
+                <div className="space-y-3 md:space-y-4">
+                  <motion.div
+                    variants={itemVariants}
+                    className="flex items-start bg-[#FFF8F6] p-3 md:p-4 rounded-lg"
+                  >
+                    <div className="mr-3 p-1.5 md:p-2 bg-[#FFE8E2] rounded">
+                      <span
+                        role="img"
+                        aria-label="connect"
+                        className="text-base md:text-lg"
+                      >
+                        🎁
+                      </span>
+                    </div>
+                    <p className="text-gray-700 text-xs md:text-sm">
+                      Connect with other indie hackers running online
+                      businesses.
+                    </p>
+                  </motion.div>
+                  <motion.div
+                    variants={itemVariants}
+                    className="flex items-start bg-[#FFF8F6] p-3 md:p-4 rounded-lg"
+                  >
+                    <div className="mr-3 p-1.5 md:p-2 bg-[#FFE8E2] rounded">
+                      <span
+                        role="img"
+                        aria-label="feedback"
+                        className="text-base md:text-lg"
+                      >
+                        💬
+                      </span>
+                    </div>
+                    <p className="text-gray-700 text-xs md:text-sm">
+                      Get feedback on your business ideas, landing pages, and
+                      more.
+                    </p>
+                  </motion.div>
+                  <motion.div
+                    variants={itemVariants}
+                    className="flex items-start bg-[#FFF8F6] p-3 md:p-4 rounded-lg"
+                  >
+                    <div className="mr-3 p-1.5 md:p-2 bg-[#FFE8E2] rounded">
+                      <span
+                        role="img"
+                        aria-label="news"
+                        className="text-base md:text-lg"
+                      >
+                        📨
+                      </span>
+                    </div>
+                    <p className="text-gray-700 text-xs md:text-sm">
+                      Get the best new stories from founders in your inbox.
+                    </p>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
 
-        {/* Display API error */}
-        {apiError && (
-          <p className="text-red-500 text-sm mb-4 text-center">{apiError}</p>
-        )}
+            <div className="w-full md:w-3/5 bg-white p-4 md:p-8">
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-3 w-full max-w-md mx-auto"
+              >
+                {apiError && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-3 md:px-4 py-2 md:py-3 rounded-md mb-4">
+                    <p className="text-xs md:text-sm">{apiError}</p>
+                  </div>
+                )}
 
-        {/* Email Field */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            className={`w-full p-2 border ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
+                <div>
+                  <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 text-left">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#FF4401] focus:border-transparent text-xs md:text-sm"
+                    placeholder="Enter your email address"
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-0.5">
+                      {errors.email}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 text-left">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#FF4401] focus:border-transparent text-xs md:text-sm"
+                    placeholder="Enter your password"
+                  />
+                  {errors.password && (
+                    <p className="text-red-500 text-xs mt-0.5">
+                      {errors.password}
+                    </p>
+                  )}
+                </div>
+
+                <motion.div variants={itemVariants}>
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#FF4401] text-white py-2 rounded-md hover:bg-[#FF4401]/90 transition-colors text-xs md:text-sm font-medium"
+                    text={loading ? "Signing in..." : "Next"}
+                    disabled={loading}
+                  />
+                </motion.div>
+
+                <motion.p
+                  variants={itemVariants}
+                  className="text-center text-xs text-gray-600 mt-3"
+                >
+                  <Link
+                    to="/forgot-password"
+                    className="text-[#FF4401] hover:underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </motion.p>
+
+                <div className="flex items-center justify-between my-3">
+                  <div className="w-full border-t border-gray-200"></div>
+                  <span className="px-3 text-xs text-gray-500">or</span>
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-center py-2 px-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors text-gray-700 text-xs md:text-sm font-medium"
+                  >
+                    <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                      <path
+                        fill="currentColor"
+                        d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
+                      />
+                    </svg>
+                    Signup With Google
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-center py-2 px-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors text-gray-700 text-xs md:text-sm font-medium"
+                  >
+                    <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                      <path
+                        fill="currentColor"
+                        d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm3 8h-1.35c-.538 0-.65.221-.65.778v1.222h2l-.209 2h-1.791v7h-3v-7h-2v-2h2v-2.308c0-1.769.931-2.692 3.029-2.692h1.971v3z"
+                      />
+                    </svg>
+                    Signup With Facebook
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-center py-2 px-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors text-gray-700 text-xs md:text-sm font-medium"
+                  >
+                    <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                      <path
+                        fill="currentColor"
+                        d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"
+                      />
+                    </svg>
+                    Signup With Twitter
+                  </button>
+                </div>
+
+                <p className="text-center text-xs text-gray-600 mt-3">
+                  Don`&#39;`t have an account yet?{""}
+                  <Link
+                    to="/register"
+                    className="text-[#FF4401] hover:underline"
+                  >
+                    Join the community!
+                  </Link>
+                </p>
+              </form>
+            </div>
+          </div>
         </div>
-
-        {/* Password Field */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            className={`w-full p-2 border ${
-              errors.password ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
-          />
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600"
-          disabled={loading}
-          text={loading ? "Logging in..." : "Login"}
-        />
-        {/* Registration Link */}
-        <p className="mt-4 text-center">
-          Do not have an account?{" "}
-          <Link to="/register" className="text-blue-500 hover:underline">
-            Register
-          </Link>
-        </p>
-        <p className="mt-4 text-center">
-          <Link to="/forgot-password" className="text-blue-500 hover:underline">
-            Forgot password?
-          </Link>
-        </p>
-      </form>
-    </div>
+      </div>
+    </motion.div>
   );
 };
 
-export default LoginPage;
+export default LoginForm;

@@ -90,6 +90,7 @@ const Layout = () => {
       style={{
         backgroundColor: themeColors.background,
         color: themeColors.textColor,
+        minHeight: "100vh",
       }}
     >
       <Header onEnvelopeClick={() => setIsUsersModalOpen(true)} />
