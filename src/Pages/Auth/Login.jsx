@@ -24,7 +24,6 @@ const LoginForm = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -33,36 +32,33 @@ const LoginForm = () => {
     if (!formData.password.trim()) {
       newErrors.password = "Password is required";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
-    if (validateForm()) {
-      try {
-        const response = await login(
-          "http://localhost:5000/auth/login",
-          "POST",
-          formData,
-          { isLogin: true },
-        );
-        console.log("Login successful:", response);
+    try {
+      const response = await login(
+        "https://hipnode-server.onrender.com/auth/login",
+        "POST",
+        formData,
+        { isLogin: true },
+      );
 
-        // Save user details to sessionStorage
-        if (response.user) {
-          sessionStorage.setItem("user", JSON.stringify(response.user));
-        } else {
-          console.warn("No user details in response");
-        }
+      // Store tokens and user data
+      sessionStorage.setItem("accessToken", response.accessToken);
+      sessionStorage.setItem("refreshToken", response.refreshToken);
+      sessionStorage.setItem("accessTokenExpiry", Date.now() + 30 * 60 * 1000); // 30 minutes
+      sessionStorage.setItem("user", JSON.stringify(response.user));
 
-        // Redirect to home page
-        navigate("/");
-      } catch (err) {
-        console.error("Login error:", err.message);
-      }
+      // Redirect to home
+      navigate("/");
+    } catch (err) {
+      console.error("Login error:", err);
+      // Error is already handled by useApi hook
     }
   };
 

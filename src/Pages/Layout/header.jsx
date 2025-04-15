@@ -14,19 +14,21 @@ import {
   FaSun,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import ProfileModal from "../../Components/Profile"; // Adjust path to your ProfileModal component
+import ProfileModal from "../../Components/Profile"; // Adjust path
+import NotificationModal from "../../Components/Notification"; // Adjust path
 
 const Header = ({ onEnvelopeClick }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false); // New state
   const navigate = useNavigate();
   const { theme, toggleTheme } = useContext(ThemeContext);
 
   // Get user info from sessionStorage
   const userInfo = JSON.parse(sessionStorage.getItem("user") || "{}");
-  const currentUserName = userInfo.username || "User"; // Fallback to "User" if username not found
-  const userId = userInfo._id; // Get userId from sessionStorage
+  const currentUserName = userInfo.username || "User";
+  const userId = userInfo._id;
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -73,10 +75,14 @@ const Header = ({ onEnvelopeClick }) => {
     // Add your post submission logic here
   };
 
-  // Open the ProfileModal when "Profile" is clicked
   const handleProfileClick = () => {
-    setIsDropdownOpen(false); // Close the dropdown
-    setIsProfileModalOpen(true); // Open the ProfileModal
+    setIsDropdownOpen(false);
+    setIsProfileModalOpen(true);
+  };
+
+  // Toggle NotificationModal on bell click
+  const handleNotificationClick = () => {
+    setIsNotificationModalOpen(!isNotificationModalOpen);
   };
 
   return (
@@ -172,10 +178,13 @@ const Header = ({ onEnvelopeClick }) => {
 
         <div className="flex items-center gap-6 relative">
           <FaEnvelope
-            className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300"
+            className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
             onClick={onEnvelopeClick}
           />
-          <FaBell className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300" />
+          <FaBell
+            className="text-xl text-gray-600 cursor-pointer hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+            onClick={handleNotificationClick} // Toggle NotificationModal
+          />
           <button onClick={() => toggleTheme()}>
             {theme !== "light" ? (
               <FaSun className="text-xl text-yellow-500" />
@@ -221,6 +230,11 @@ const Header = ({ onEnvelopeClick }) => {
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         userId={userId}
+      />
+      <NotificationModal
+        userId={userId}
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
       />
     </>
   );

@@ -54,7 +54,7 @@ const RegistrationForm = () => {
     if (validateForm()) {
       try {
         const result = await register(
-          "http://localhost:5000/auth/register",
+          "https://hipnode-server.onrender.com/auth/register",
           "POST",
           formData,
         );

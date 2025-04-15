@@ -1,11 +1,20 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+// src/components/ProfileModal.js
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from "react";
 import Modal from "./modal";
 import { ThemeContext } from "../context/themeContext";
+import { useAuth } from "../context/authContext";
 import { format } from "date-fns";
 import useApi from "../hooks/useApi";
 
 const ProfileModal = ({ isOpen, onClose, userId }) => {
   const { themeColors } = useContext(ThemeContext);
+  const { isAuthenticated } = useAuth();
   const [profileData, setProfileData] = useState({
     firstname: "",
     surname: "",
@@ -25,6 +34,7 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const hasFetchedRef = useRef(false);
 
   const {
     data: profileResponse,
@@ -39,74 +49,56 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
     loading: uploadLoading,
     execute: uploadProfilePic,
   } = useApi();
-  console.log("uploadResponse", uploadResponse);
+
+  console.log(uploadResponse, "Upload Error");
+
   const {
     data: bioResponse,
     error: bioError,
     loading: bioLoading,
     execute: updateBio,
   } = useApi();
-  console.log("bioResponse", bioResponse);
 
+  console.log(bioResponse, "Bio Response");
   useEffect(() => {
-    if (!isOpen || !userId) return;
+    if (!isOpen || !userId || !isAuthenticated || hasFetchedRef.current) return;
 
-    const abortController = new AbortController();
-    let isMounted = true;
-
+    hasFetchedRef.current = true; // Set early to prevent re-runs
     const fetchProfileData = async () => {
-      if (!isMounted) return;
-
       setIsLoading(true);
       setError(null);
 
       try {
         console.log("Fetching profile for userId:", userId);
         await fetchProfile(
-          `http://localhost:5000/auth/${userId}`,
+          `https://hipnode-server.onrender.com/auth/${userId}`,
           "GET",
           null,
-          {
-            signal: abortController.signal,
-          },
+          { requiresAuth: true },
         );
 
         if (profileError) {
-          throw new Error(
-            profileError.message || "Failed to fetch profile data",
-          );
+          throw new Error(profileError.message || "Failed to fetch profile");
         }
       } catch (err) {
-        if (err.name !== "AbortError" && isMounted) {
-          console.error("Profile fetch error:", err);
-          setError(err.message || "Failed to load profile data");
-        }
+        console.error("Profile fetch error:", err);
+        setError(err.message);
       } finally {
-        if (!abortController.signal.aborted && isMounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
     fetchProfileData();
-
-    return () => {
-      isMounted = false;
-      abortController.abort();
-      console.log("Cleanup: Aborted fetch for userId:", userId);
-    };
-  }, [isOpen, userId]);
+  }, [isOpen, userId, isAuthenticated, fetchProfile, profileError]);
 
   useEffect(() => {
     if (profileResponse?.user) {
-      console.log("Profile response received:", profileResponse.user);
-      setProfileData((prev) => ({
-        ...prev,
+      setProfileData({
         ...profileResponse.user,
         profilePicture:
           profileResponse.user.profilePicture ||
           "https://via.placeholder.com/150",
-      }));
+      });
       setNewBio(profileResponse.user.bio || "");
     }
   }, [profileResponse]);
@@ -136,7 +128,6 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
     setIsUploading(true);
     setUploadProgress(0);
 
-    // Optimistic update: Set the preview immediately
     const previewUrl = URL.createObjectURL(selectedFile);
     setProfileData((prev) => ({
       ...prev,
@@ -165,17 +156,16 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
       };
 
       const response = await uploadProfilePic(
-        `http://localhost:5000/auth/${userId}/profile-picture`,
+        `https://hipnode-server.onrender.com/auth/${userId}/profile-picture`,
         "PATCH",
         formData,
-        { onUploadProgress },
+        { onUploadProgress, requiresAuth: true },
       );
 
       if (uploadError) {
         throw new Error(uploadError.message || "Profile picture update failed");
       }
 
-      // Update with server response if provided, otherwise keep optimistic update
       if (response?.profilePicture) {
         setProfileData((prev) => ({
           ...prev,
@@ -188,7 +178,6 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
       setUploadProgress(0);
     } catch (err) {
       console.error("Profile picture upload error:", err);
-      // Revert on failure
       setProfileData((prev) => ({
         ...prev,
         profilePicture:
@@ -207,7 +196,6 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
       return;
     }
 
-    // Optimistic update
     setProfileData((prev) => ({
       ...prev,
       bio: newBio,
@@ -216,18 +204,16 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
 
     try {
       const response = await updateBio(
-        `http://localhost:5000/auth/${userId}`,
+        `https://hipnode-server.onrender.com/auth/${userId}`,
         "PATCH",
-        {
-          bio: newBio,
-        },
+        { bio: newBio },
+        { requiresAuth: true },
       );
 
       if (bioError) {
         throw new Error(bioError.message || "Failed to update bio");
       }
 
-      // Update with server response if provided
       if (response?.bio) {
         setProfileData((prev) => ({
           ...prev,
@@ -236,12 +222,11 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
       }
     } catch (err) {
       console.error("Bio update error:", err);
-      // Revert on failure
       setProfileData((prev) => ({
         ...prev,
         bio: profileResponse?.user?.bio || "",
       }));
-      setIsEditingBio(true); // Reopen editor on failure
+      setIsEditingBio(true);
       alert(err.message || "Failed to update bio");
     }
   }, [newBio, userId, updateBio, bioError, profileResponse]);
@@ -257,12 +242,20 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
     setUploadProgress(0);
   }, []);
 
+  const handleRetry = useCallback(() => {
+    hasFetchedRef.current = false;
+    setError(null); // Trigger re-fetch by clearing error
+  }, []);
+
   if (!isOpen) return null;
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={() => {
+        hasFetchedRef.current = false;
+        onClose();
+      }}
       size="sm"
       position="top-right"
       height={"50"}
@@ -284,18 +277,32 @@ const ProfileModal = ({ isOpen, onClose, userId }) => {
           <div className="flex flex-col items-center justify-center h-40 w-full">
             <div className="text-red-500 mb-2">⚠️</div>
             <p style={{ color: themeColors.darkOrangeColor }}>
-              {error || profileError.message || "Failed to load profile"}
+              {error || profileError?.message}
             </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-2 px-3 py-1 rounded text-sm"
-              style={{
-                backgroundColor: themeColors.buttonBlueBg,
-                color: themeColors.buttonSecondaryText,
-              }}
-            >
-              Retry
-            </button>
+            {error === "Please login to continue" ||
+            error === "Please login to view this profile" ? (
+              <button
+                onClick={() => (window.location.href = "/login")}
+                className="mt-2 px-3 py-1 rounded text-sm"
+                style={{
+                  backgroundColor: themeColors.buttonBlueBg,
+                  color: themeColors.buttonSecondaryText,
+                }}
+              >
+                Login to continue
+              </button>
+            ) : (
+              <button
+                onClick={handleRetry}
+                className="mt-2 px-3 py-1 rounded text-sm"
+                style={{
+                  backgroundColor: themeColors.buttonBlueBg,
+                  color: themeColors.buttonSecondaryText,
+                }}
+              >
+                Retry
+              </button>
+            )}
           </div>
         )}
 

@@ -41,7 +41,7 @@ const MessageModal = ({ isOpen, onClose, userId, selectedChat }) => {
         setError(null);
         try {
           const response = await fetch(
-            `http://localhost:5000/api/messages/${userId}/${selectedChat.id}`,
+            `https://hipnode-server.onrender.com/api/messages/${userId}/${selectedChat.id}`,
           );
           if (!response.ok) {
             throw new Error("Failed to fetch chat history");

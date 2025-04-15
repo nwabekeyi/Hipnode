@@ -1,69 +1,68 @@
+// src/hooks/useApi.js
 import { useState } from "react";
+import { useAuth } from "../context/authContext";
 
 const useApi = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { logout } = useAuth();
 
   const refreshAccessToken = async () => {
     try {
-      console.log("Attempting to refresh access token...");
-      const response = await fetch("http://localhost:5000/auth/refresh-token", {
-        method: "POST",
-        credentials: "include",
-      });
+      const refreshToken = sessionStorage.getItem("refreshToken");
+      console.log("Refreshing token with refreshToken:", refreshToken);
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      const response = await fetch(
+        "https://hipnode-server.onrender.com/auth/refresh-token",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ refreshToken }),
+        },
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Refresh token response error:", errorData);
-        throw new Error(errorData.message || "Failed to refresh access token");
+        throw new Error(errorData.message || "Failed to refresh token");
       }
 
       const { accessToken, expiresIn } = await response.json();
       const expiryTime = Date.now() + expiresIn * 1000;
+
       sessionStorage.setItem("accessToken", accessToken);
       sessionStorage.setItem("accessTokenExpiry", expiryTime);
-      console.log("Access token refreshed successfully:", accessToken);
+      console.log("New access token:", accessToken);
+
       return accessToken;
     } catch (err) {
-      console.error("Token refresh error:", err.message);
+      console.error("Refresh token error:", err.message);
       sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("refreshToken");
       sessionStorage.removeItem("accessTokenExpiry");
+      sessionStorage.removeItem("user");
+      logout();
       throw err;
     }
   };
 
-  const isAccessTokenAboutToExpire = () => {
+  const isTokenExpiredOrAboutToExpire = () => {
     const expiryTime = sessionStorage.getItem("accessTokenExpiry");
-    if (!expiryTime) {
-      console.log("No access token expiry found, treating as expired.");
-      return true;
-    }
+    if (!expiryTime) return true;
 
-    const timeLeft = expiryTime - Date.now();
-    const isAboutToExpire = timeLeft < 3 * 60 * 1000;
-    console.log(
-      `Access token time left: ${timeLeft}ms, about to expire: ${isAboutToExpire}`,
-    );
-    return isAboutToExpire;
+    const timeLeft = parseInt(expiryTime) - Date.now();
+    return timeLeft < 5 * 60 * 1000; // 5 minutes left
   };
 
   const execute = async (url, method = "GET", body = null, options = {}) => {
     try {
       setLoading(true);
       setError(null);
-
-      let accessToken = sessionStorage.getItem("accessToken");
-      console.log("Initial access token:", accessToken);
-      if (accessToken && isAccessTokenAboutToExpire()) {
-        accessToken = await refreshAccessToken();
-      }
-
-      const updatedAccessToken = sessionStorage.getItem("accessToken");
-      console.log(
-        "Updated access token after refresh check:",
-        updatedAccessToken,
-      );
 
       const headers = {
         ...options.headers,
@@ -73,16 +72,20 @@ const useApi = () => {
         headers["Content-Type"] = "application/json";
       }
 
-      if (updatedAccessToken && !options.isLogin) {
-        headers.Authorization = `Bearer ${updatedAccessToken}`;
-        console.log("Authorization header set:", headers.Authorization);
-      } else {
-        console.log(
-          "No Authorization header set. isLogin:",
-          options.isLogin,
-          "Token exists:",
-          !!updatedAccessToken,
-        );
+      let accessToken = sessionStorage.getItem("accessToken");
+      console.log("Initial accessToken:", accessToken);
+
+      if (options.requiresAuth) {
+        if (!accessToken && !sessionStorage.getItem("refreshToken")) {
+          throw new Error("Please login to continue");
+        }
+
+        if (!accessToken || isTokenExpiredOrAboutToExpire()) {
+          console.log("Token missing or about to expire, refreshing...");
+          accessToken = await refreshAccessToken();
+        }
+
+        headers.Authorization = `Bearer ${accessToken}`;
       }
 
       const fetchOptions = {
@@ -90,52 +93,34 @@ const useApi = () => {
         headers,
         body:
           body instanceof FormData ? body : body ? JSON.stringify(body) : null,
-        credentials: "include",
       };
 
-      console.log(
-        `Making ${method} request to ${url} with headers:`,
-        fetchOptions.headers,
-      );
-      console.log(
-        "Request body instanceof FormData:",
-        body instanceof FormData,
-      );
-
       let response = await fetch(url, fetchOptions);
+      console.log("Initial response status:", response.status);
 
-      if (response.status === 401 && !options.isLogin) {
-        console.log("Received 401, attempting to refresh token...");
-        accessToken = await refreshAccessToken();
-        headers.Authorization = `Bearer ${accessToken}`;
+      if (response.status === 401 && options.requiresAuth) {
+        console.log("401 received, attempting token refresh...");
+        const newAccessToken = await refreshAccessToken();
+        headers.Authorization = `Bearer ${newAccessToken}`;
         fetchOptions.headers = headers;
 
-        console.log("Retrying request with new token:", headers.Authorization);
         response = await fetch(url, fetchOptions);
+        console.log("Retry response status:", response.status);
       }
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error(`Error response from ${url}:`, errorData);
-        throw new Error(errorData.message || "Something went wrong");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `Request failed with status ${response.status}`,
+        );
       }
 
       const responseData = await response.json();
-      console.log(`Response from ${url}:`, responseData);
       setData(responseData);
-
-      if (options.isLogin) {
-        const { accessToken, expiresIn } = responseData;
-        const expiryTime = Date.now() + expiresIn * 1000;
-        sessionStorage.setItem("accessToken", accessToken);
-        sessionStorage.setItem("accessTokenExpiry", expiryTime);
-        console.log("Login successful, access token saved:", accessToken);
-      }
-
       return responseData;
     } catch (err) {
-      setError(err.message || "Something went wrong");
-      console.error(`Error in ${method} request to ${url}:`, err);
+      console.error("API error:", err.message);
+      setError(err.message);
       throw err;
     } finally {
       setLoading(false);
