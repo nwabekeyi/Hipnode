@@ -20,7 +20,7 @@ const ProtectedRoute = ({ children }) => {
       try {
         // Verify the token with the backend
         const response = await callApi(
-          "http://localhost:5000/auth/verify-token",
+          "https://hipnode-server.onrender.com/auth/verify-token",
           "GET",
           null, // No body for GET request
           {

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from "react";
 
 export const ThemeContext = createContext();
 
@@ -45,6 +45,7 @@ export const ThemeProvider = ({ children }) => {
   const [themeColors, setThemeColors] = useState(
     theme === "light" ? lightTheme : darkTheme,
   );
+  console.log("Theme colors:", themeColors);
 
   useEffect(() => {
     localStorage.setItem("theme", theme);
@@ -68,4 +69,3 @@ export const ThemeProvider = ({ children }) => {
     </ThemeContext.Provider>
   );
 };
-

@@ -298,7 +298,7 @@ const PublishingInterface = () => {
                 renderElement={renderElement}
                 renderLeaf={renderLeaf}
                 placeholder="Tell your story..."
-                className="border border-gray-300 rounded-lg p-3 h-40 overflow-y-auto focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 text-center"
+                className="border border-gray-300 rounded-lg p-3 h-40 overflow-y-auto focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
                 onKeyDown={(event) => {
                   for (const hotkey in HOTKEYS) {
                     if (isHotkey(hotkey, event)) {

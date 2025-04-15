@@ -1,42 +1,62 @@
+// src/hooks/useApi.js
 import { useState } from "react";
+import { useAuth } from "../context/authContext";
 
 const useApi = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { logout } = useAuth();
 
-  // Function to refresh the access token
   const refreshAccessToken = async () => {
     try {
-      const response = await fetch("http://localhost:5000/auth/refresh-token", {
-        method: "POST",
-        credentials: "include", // Include cookies (refresh token)
-      });
+      const refreshToken = sessionStorage.getItem("refreshToken");
+      console.log("Refreshing token with refreshToken:", refreshToken);
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      const response = await fetch(
+        "https://hipnode-server.onrender.com/auth/refresh-token",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ refreshToken }),
+        },
+      );
 
       if (!response.ok) {
-        throw new Error("Failed to refresh access token");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to refresh token");
       }
 
       const { accessToken, expiresIn } = await response.json();
-      const expiryTime = Date.now() + expiresIn * 1000; // Convert to milliseconds
+      const expiryTime = Date.now() + expiresIn * 1000;
+
       sessionStorage.setItem("accessToken", accessToken);
       sessionStorage.setItem("accessTokenExpiry", expiryTime);
+      console.log("New access token:", accessToken);
+
       return accessToken;
     } catch (err) {
-      console.error("Token refresh error:", err);
-      sessionStorage.removeItem("accessToken"); // Clear the expired access token
+      console.error("Refresh token error:", err.message);
+      sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("refreshToken");
       sessionStorage.removeItem("accessTokenExpiry");
+      sessionStorage.removeItem("user");
+      logout();
       throw err;
     }
   };
 
-  // Function to check if the access token is about to expire
-  const isAccessTokenAboutToExpire = () => {
+  const isTokenExpiredOrAboutToExpire = () => {
     const expiryTime = sessionStorage.getItem("accessTokenExpiry");
-    if (!expiryTime) return true; // No token, treat as expired
+    if (!expiryTime) return true;
 
-    const timeLeft = expiryTime - Date.now();
-    return timeLeft < 3 * 60 * 1000; // 3 minutes in milliseconds
+    const timeLeft = parseInt(expiryTime) - Date.now();
+    return timeLeft < 5 * 60 * 1000; // 5 minutes left
   };
 
   const execute = async (url, method = "GET", body = null, options = {}) => {
@@ -44,50 +64,63 @@ const useApi = () => {
       setLoading(true);
       setError(null);
 
-      // Check if the access token is about to expire (only for authenticated requests)
-      if (options.isLogin && isAccessTokenAboutToExpire()) {
-        await refreshAccessToken(); // Refresh the token
-      }
-
-      // Get the access token from sessionStorage (only for authenticated requests)
-      const accessToken = sessionStorage.getItem("accessToken");
-
       const headers = {
-        "Content-Type": "application/json",
-        ...options.headers, // Include custom headers
+        ...options.headers,
       };
 
-      // Add the access token to the headers if it exists (only for authenticated requests)
-      if (accessToken && !options.isLogin) {
+      if (!headers["Content-Type"] && !(body instanceof FormData)) {
+        headers["Content-Type"] = "application/json";
+      }
+
+      let accessToken = sessionStorage.getItem("accessToken");
+      console.log("Initial accessToken:", accessToken);
+
+      if (options.requiresAuth) {
+        if (!accessToken && !sessionStorage.getItem("refreshToken")) {
+          throw new Error("Please login to continue");
+        }
+
+        if (!accessToken || isTokenExpiredOrAboutToExpire()) {
+          console.log("Token missing or about to expire, refreshing...");
+          accessToken = await refreshAccessToken();
+        }
+
         headers.Authorization = `Bearer ${accessToken}`;
       }
 
-      const response = await fetch(url, {
+      const fetchOptions = {
         method,
         headers,
-        body: body ? JSON.stringify(body) : null,
-        credentials: "include", // Include cookies in the request
-      });
+        body:
+          body instanceof FormData ? body : body ? JSON.stringify(body) : null,
+      };
+
+      let response = await fetch(url, fetchOptions);
+      console.log("Initial response status:", response.status);
+
+      if (response.status === 401 && options.requiresAuth) {
+        console.log("401 received, attempting token refresh...");
+        const newAccessToken = await refreshAccessToken();
+        headers.Authorization = `Bearer ${newAccessToken}`;
+        fetchOptions.headers = headers;
+
+        response = await fetch(url, fetchOptions);
+        console.log("Retry response status:", response.status);
+      }
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Something went wrong");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `Request failed with status ${response.status}`,
+        );
       }
 
       const responseData = await response.json();
       setData(responseData);
-
-      // Handle login-specific logic (e.g., save access token and expiry time)
-      if (options.isLogin) {
-        const { accessToken, expiresIn } = responseData; // Assuming the backend returns `accessToken` and `expiresIn`
-        const expiryTime = Date.now() + expiresIn * 1000; // Convert to milliseconds
-        sessionStorage.setItem("accessToken", accessToken);
-        sessionStorage.setItem("accessTokenExpiry", expiryTime);
-      }
-
       return responseData;
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      console.error("API error:", err.message);
+      setError(err.message);
       throw err;
     } finally {
       setLoading(false);

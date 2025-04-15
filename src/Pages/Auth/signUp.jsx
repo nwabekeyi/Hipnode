@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import useApi from "../../hooks/useApi";
 import Button from "../../Components/button";
 import { registerUser } from "../../api/userApi";
 import { motion } from "framer-motion"; // Import Framer Motion
 
 const RegistrationForm = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
+
   const [formData, setFormData] = useState({
     firstname: "",
     surname: "",
@@ -51,16 +53,19 @@ const RegistrationForm = () => {
     e.preventDefault();
     if (validateForm()) {
       try {
-        await register(formData);
-        alert("Registration successful!");
-        setFormData({
-          firstname: "",
-          surname: "",
-          username: "",
-          dob: "",
-          email: "",
-          password: "",
-        });
+        const result = await register(
+          "https://hipnode-server.onrender.com/auth/register",
+          "POST",
+          formData,
+        );
+        console.log("Registration response:", result); // Debug response
+
+        alert("Registration successful! Redirecting to login page...");
+
+        // Redirect to the login page after 5 seconds
+        setTimeout(() => {
+          navigate("/login"); // Use navigate to redirect
+        }, 5000); // 5000 milliseconds = 5 seconds
       } catch (err) {
         console.error("Registration error:", err);
       }

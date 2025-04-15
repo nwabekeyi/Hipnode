@@ -1,10 +1,9 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState } from "react";
 
 export const PublishContext = createContext();
 
 export const PublisherProvider = ({ children }) => {
   const [isPublisherOpen, setIsPublisherOpen] = useState(false);
-
 
   const openPublisher = () => {
     setIsPublisherOpen(true);
@@ -15,9 +14,10 @@ export const PublisherProvider = ({ children }) => {
   };
 
   return (
-    <PublishContext.Provider value={{ isPublisherOpen, openPublisher, closePublisher }}>
+    <PublishContext.Provider
+      value={{ isPublisherOpen, openPublisher, closePublisher }}
+    >
       {children}
     </PublishContext.Provider>
   );
 };
-

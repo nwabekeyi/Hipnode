@@ -1,24 +1,19 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import Button from "../../Components/button";
-import { loginUser } from "../../api/userApi";
 import { motion } from "framer-motion";
 
 const LoginForm = () => {
-  // State for form inputs
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  // State for validation errors
   const [errors, setErrors] = useState({});
+  const { execute: login, loading, error: apiError } = useApi();
+  const navigate = useNavigate();
 
-  // Use the useApi hook for login
-  const { execute: login, loading, error: apiError } = useApi(loginUser);
-
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -27,10 +22,8 @@ const LoginForm = () => {
     });
   };
 
-  // Validate form inputs
   const validateForm = () => {
     const newErrors = {};
-
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -39,22 +32,33 @@ const LoginForm = () => {
     if (!formData.password.trim()) {
       newErrors.password = "Password is required";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
-    if (validateForm()) {
-      try {
-        await login(formData);
-        // Handle successful login
-      } catch (err) {
-        console.error("Login error:", err);
-      }
+    try {
+      const response = await login(
+        "https://hipnode-server.onrender.com/auth/login",
+        "POST",
+        formData,
+        { isLogin: true },
+      );
+
+      // Store tokens and user data
+      sessionStorage.setItem("accessToken", response.accessToken);
+      sessionStorage.setItem("refreshToken", response.refreshToken);
+      sessionStorage.setItem("accessTokenExpiry", Date.now() + 30 * 60 * 1000); // 30 minutes
+      sessionStorage.setItem("user", JSON.stringify(response.user));
+
+      // Redirect to home
+      navigate("/");
+    } catch (err) {
+      console.error("Login error:", err);
+      // Error is already handled by useApi hook
     }
   };
 
@@ -78,7 +82,6 @@ const LoginForm = () => {
       <div className="h-screen overflow-y-auto">
         <div className="flex items-center justify-center p-4">
           <div className="flex flex-col md:flex-row w-full max-w-4xl bg-white rounded-lg overflow-hidden shadow-sm my-8">
-            {/* Left Section */}
             <motion.div
               variants={itemVariants}
               className="w-full md:w-2/5 p-4 md:p-8 flex flex-col justify-start"
@@ -153,20 +156,17 @@ const LoginForm = () => {
               </div>
             </motion.div>
 
-            {/* Right Section (Form) */}
             <div className="w-full md:w-3/5 bg-white p-4 md:p-8">
               <form
                 onSubmit={handleSubmit}
                 className="space-y-3 w-full max-w-md mx-auto"
               >
-                {/* Display API error */}
                 {apiError && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-3 md:px-4 py-2 md:py-3 rounded-md mb-4">
                     <p className="text-xs md:text-sm">{apiError}</p>
                   </div>
                 )}
 
-                {/* Email */}
                 <div>
                   <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 text-left">
                     Email
@@ -186,7 +186,6 @@ const LoginForm = () => {
                   )}
                 </div>
 
-                {/* Password */}
                 <div>
                   <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 text-left">
                     Password
@@ -206,7 +205,6 @@ const LoginForm = () => {
                   )}
                 </div>
 
-                {/* Submit Button */}
                 <motion.div variants={itemVariants}>
                   <Button
                     type="submit"
@@ -234,7 +232,6 @@ const LoginForm = () => {
                   <div className="w-full border-t border-gray-200"></div>
                 </div>
 
-                {/* Social Login Buttons */}
                 <div className="space-y-2">
                   <button
                     type="button"
@@ -275,7 +272,7 @@ const LoginForm = () => {
                 </div>
 
                 <p className="text-center text-xs text-gray-600 mt-3">
-                  Don&apos;t have an account yet?{" "}
+                  Don`&#39;`t have an account yet?{""}
                   <Link
                     to="/register"
                     className="text-[#FF4401] hover:underline"
